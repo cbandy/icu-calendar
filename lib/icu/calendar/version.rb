@@ -1,5 +1,5 @@
 module ICU
-  module Calendar
+  class Calendar
     VERSION = '0.0.0'
   end
 end

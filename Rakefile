@@ -3,7 +3,8 @@ require 'rake/extensiontask'
 require 'rspec/core/rake_task'
 
 Rake::ExtensionTask.new('icu_calendar') do |ext|
-  ext.lib_dir = 'lib/icu_calendar'
+  ext.ext_dir = 'ext/icu/calendar'
+  ext.lib_dir = 'lib/icu'
 end
 
 RSpec::Core::RakeTask.new(:spec => [:clean, :compile])
