@@ -16,6 +16,7 @@ begin
 end
 
 have_header('unicode/calendar.h')
+have_header('unicode/timezone.h')
 
 have_library('icuuc')
 have_library('icui18n')
