@@ -1,0 +1,6 @@
+before_script:
+  sudo apt-get install libicu-dev
+
+rvm:
+  - 1.9.2
+  - 1.9.3

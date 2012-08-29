@@ -8,3 +8,5 @@ Rake::ExtensionTask.new('icu_calendar') do |ext|
 end
 
 RSpec::Core::RakeTask.new(:spec => [:clean, :compile])
+
+task :default => :spec
