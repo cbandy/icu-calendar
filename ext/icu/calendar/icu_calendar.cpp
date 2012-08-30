@@ -10,7 +10,17 @@ namespace ruby {
 }
 
 #include <unicode/calendar.h>
+#include <unicode/errorcode.h>
 #include <unicode/timezone.h>
+
+class ErrorCode: public icu::ErrorCode
+{
+	protected:
+		virtual void handleFailure() const
+		{
+			throw Rice::Exception(rb_eRuntimeError, u_errorName(errorCode));
+		}
+};
 
 template<>
 icu::UnicodeString from_ruby<icu::UnicodeString>(Rice::Object x)
@@ -46,10 +56,9 @@ Rice::Array calendar_available_locales(Rice::Object /* class */)
 
 Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 {
-	UErrorCode status;
 	icu::UnicodeString result;
+	ErrorCode status;
 
-	status = U_ZERO_ERROR;
 	icu::TimeZone::getCanonicalID(from_ruby<icu::UnicodeString>(id), result, status);
 
 	return to_ruby(result);
@@ -57,20 +66,20 @@ Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 
 Rice::Array timezone_enumeration(Rice::Object /* class */)
 {
-	icu::StringEnumeration *timezones = icu::TimeZone::createEnumeration();
 	const icu::UnicodeString *timezone;
-	UErrorCode status;
+	icu::StringEnumeration *timezones = icu::TimeZone::createEnumeration();
 	Rice::Array result;
+	ErrorCode status;
 
-	status = U_ZERO_ERROR;
 	timezone = timezones->snext(status);
+	status.assertSuccess();
 
-	while (timezone != NULL && U_SUCCESS(status))
+	while (timezone != NULL)
 	{
-		result.push(to_ruby<icu::UnicodeString>(*timezone));
+		result.push(to_ruby(*timezone));
 
-		status = U_ZERO_ERROR;
 		timezone = timezones->snext(status);
+		status.assertSuccess();
 	}
 
 	return result;
