@@ -32,7 +32,7 @@ Rice::Object to_ruby<icu::UnicodeString>(icu::UnicodeString const &x)
 	return result;
 }
 
-Rice::Object calendar_available_locales(Rice::Object /* class */)
+Rice::Array calendar_available_locales(Rice::Object /* class */)
 {
 	int32_t count = 0, i;
 	const icu::Locale *locales = icu::Calendar::getAvailableLocales(count);
@@ -55,7 +55,7 @@ Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 	return to_ruby(result);
 }
 
-Rice::Object timezone_enumeration(Rice::Object /* class */)
+Rice::Array timezone_enumeration(Rice::Object /* class */)
 {
 	icu::StringEnumeration *timezones = icu::TimeZone::createEnumeration();
 	const icu::UnicodeString *timezone;
