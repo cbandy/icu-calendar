@@ -4,6 +4,10 @@ require 'icu/calendar'
 
 module ICU
   describe Calendar do
+    it 'defines a RuntimeError' do
+      Calendar::RuntimeError.new.should be_a ::RuntimeError
+    end
+
     describe 'available locales' do
       subject { Calendar.available_locales }
 

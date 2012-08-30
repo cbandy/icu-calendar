@@ -5,7 +5,8 @@
 #include <rice/Data_Type.hpp>
 #include <rice/Module.hpp>
 
-namespace ruby {
+namespace ruby
+{
 	#include <ruby/encoding.h>
 }
 
@@ -13,12 +14,19 @@ namespace ruby {
 #include <unicode/errorcode.h>
 #include <unicode/timezone.h>
 
+namespace
+{
+	Rice::Data_Type<icu::Calendar> rb_cICUCalendar;
+	Rice::Class  rb_eICURuntimeError;
+	Rice::Module rb_mICU;
+}
+
 class ErrorCode: public icu::ErrorCode
 {
 	protected:
 		virtual void handleFailure() const
 		{
-			throw Rice::Exception(rb_eRuntimeError, u_errorName(errorCode));
+			throw Rice::Exception(rb_eICURuntimeError, u_errorName(errorCode));
 		}
 };
 
@@ -88,10 +96,12 @@ Rice::Array timezone_enumeration(Rice::Object /* class */)
 extern "C"
 void Init_icu_calendar()
 {
-	Rice::Module rb_mICU = Rice::define_module("ICU");
+	rb_mICU = Rice::define_module("ICU");
 
-	Rice::Data_Type<icu::Calendar> rb_cCalendar = rb_mICU.define_class("Calendar")
+	rb_cICUCalendar = rb_mICU.define_class("Calendar")
 		.define_singleton_method("available_locales", &calendar_available_locales)
 		.define_singleton_method("canonical_timezone_identifier", &timezone_canonical_id)
 		.define_singleton_method("timezones", &timezone_enumeration);
+
+	rb_eICURuntimeError = rb_cICUCalendar.define_class("RuntimeError", rb_eRuntimeError);
 }
