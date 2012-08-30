@@ -13,6 +13,14 @@ namespace ruby {
 #include <unicode/timezone.h>
 
 template<>
+icu::UnicodeString from_ruby<icu::UnicodeString>(Rice::Object x)
+{
+	// FIXME handle encodings
+	Rice::String s(x);
+	return UNICODE_STRING(s.c_str(), s.length());
+}
+
+template<>
 Rice::Object to_ruby<icu::UnicodeString>(icu::UnicodeString const &x)
 {
 	std::string dest;
@@ -34,6 +42,17 @@ Rice::Object calendar_available_locales(Rice::Object /* class */)
 		result.push(Rice::String(locales[i].getName()));
 
 	return result;
+}
+
+Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
+{
+	UErrorCode status;
+	icu::UnicodeString result;
+
+	status = U_ZERO_ERROR;
+	icu::TimeZone::getCanonicalID(from_ruby<icu::UnicodeString>(id), result, status);
+
+	return to_ruby(result);
 }
 
 Rice::Object timezone_enumeration(Rice::Object /* class */)
@@ -64,5 +83,6 @@ void Init_icu_calendar()
 
 	Rice::Data_Type<icu::Calendar> rb_cCalendar = rb_mICU.define_class("Calendar")
 		.define_singleton_method("available_locales", &calendar_available_locales)
+		.define_singleton_method("canonical_timezone_identifier", &timezone_canonical_id)
 		.define_singleton_method("timezones", &timezone_enumeration);
 }
