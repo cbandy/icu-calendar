@@ -10,8 +10,8 @@ Gem::Specification.new do |gem|
 
   gem.author = 'Chris Bandy'
   gem.email = 'bandy.chris@gmail.com'
-  gem.homepage = 'FIXME'
-  gem.licenses = ['FIXME']
+  gem.homepage = 'https://github.com/cbandy/icu-calendar'
+  gem.license = 'Apache License Version 2.0'
 
   gem.extensions << 'ext/icu/calendar/extconf.rb'
   gem.files = Dir.glob('lib/**/*.rb')
@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'rake-compiler'
   gem.add_development_dependency 'rice'
-  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rspec', '>= 2.14'
   gem.required_ruby_version = '>= 1.9.2'
   gem.requirements << 'ICU 4.2 or greater, http://www.icu-project.org/'
 end
