@@ -7,6 +7,6 @@ Rake::ExtensionTask.new('icu_calendar') do |ext|
   ext.lib_dir = 'lib/icu'
 end
 
-RSpec::Core::RakeTask.new(:spec => [:clean, :compile])
+RSpec::Core::RakeTask.new(:spec)
 
-task :default => :spec
+task :default => [:clean, :compile, :spec]
