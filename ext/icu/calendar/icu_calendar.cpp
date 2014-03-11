@@ -1,4 +1,3 @@
-
 /* vim: set shiftwidth=2 tabstop=2: */
 
 #include <rice/Array.hpp>
@@ -46,9 +45,7 @@ Rice::Object to_ruby<icu::UnicodeString>(icu::UnicodeString const &x)
 	x.toUTF8String(dest);
 
 	Rice::String result(dest);
-	ruby::rb_enc_associate(result, ruby::rb_utf8_encoding());
-
-	return result;
+	return Rice::protect(ruby::rb_enc_associate, result, ruby::rb_utf8_encoding());
 }
 
 template<>
