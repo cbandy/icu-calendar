@@ -3,6 +3,7 @@
 
 #include <rice/Array.hpp>
 #include <rice/Data_Type.hpp>
+#include <rice/Exception.hpp>
 #include <rice/Module.hpp>
 
 namespace ruby
