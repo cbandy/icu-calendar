@@ -8,6 +8,13 @@ module ICU
       expect(Calendar::RuntimeError.new).to be_a(::RuntimeError)
     end
 
+    describe 'ICU version' do
+      subject { Calendar::ICU_VERSION }
+
+      it { should be_a String }
+      it { should match /^[0-9.]+$/ }
+    end
+
     describe 'available locales' do
       subject(:locales) { Calendar.available_locales }
 

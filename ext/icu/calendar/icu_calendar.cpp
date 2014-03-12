@@ -13,6 +13,7 @@ namespace ruby
 #include <unicode/calendar.h>
 #include <unicode/errorcode.h>
 #include <unicode/timezone.h>
+#include <unicode/uversion.h>
 
 namespace
 {
@@ -79,6 +80,17 @@ Rice::Array calendar_available_locales(Rice::Object /* class */)
 	return result;
 }
 
+Rice::String calendar_icu_version()
+{
+	UVersionInfo version;
+	char buffer[U_MAX_VERSION_STRING_LENGTH];
+
+	u_getVersion(version);
+	u_versionToString(version, buffer);
+
+	return to_ruby((const char *)buffer);
+}
+
 Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 {
 	icu::UnicodeString result;
@@ -119,6 +131,7 @@ void Init_icu_calendar()
 	rb_mICU = Rice::define_module("ICU");
 
 	rb_cICUCalendar = rb_mICU.define_class("Calendar")
+		.const_set("ICU_VERSION", calendar_icu_version())
 		.define_singleton_method("available_locales", &calendar_available_locales)
 		.define_singleton_method("canonical_timezone_identifier", &timezone_canonical_id)
 		.define_singleton_method("dst_savings", &timezone_daylight_savings_time)
