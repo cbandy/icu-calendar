@@ -41,10 +41,8 @@ icu::UnicodeString from_ruby<icu::UnicodeString>(Rice::Object x)
 template<>
 Rice::Object to_ruby<icu::UnicodeString>(icu::UnicodeString const &x)
 {
-	std::string dest;
-	x.toUTF8String(dest);
-
-	Rice::String result(dest);
+	std::string buffer;
+	Rice::String result(x.toUTF8String(buffer));
 	return Rice::protect(ruby::rb_enc_associate, result, ruby::rb_utf8_encoding());
 }
 
@@ -66,7 +64,6 @@ Rice::Object to_ruby<icu::StringEnumeration*>(icu::StringEnumeration* const &x)
 		status.assertSuccess();
 	}
 
-	delete x;
 	return result;
 }
 
@@ -88,6 +85,18 @@ Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 	ErrorCode status;
 
 	icu::TimeZone::getCanonicalID(from_ruby<icu::UnicodeString>(id), result, status);
+	status.assertSuccess();
+
+	return to_ruby(result);
+}
+
+Rice::String timezone_data_version(Rice::Object /* class */)
+{
+	ErrorCode status;
+	const char *result;
+
+	result = icu::TimeZone::getTZDataVersion(status);
+	status.assertSuccess();
 
 	return to_ruby(result);
 }
@@ -114,12 +123,9 @@ void Init_icu_calendar()
 		.define_singleton_method("canonical_timezone_identifier", &timezone_canonical_id)
 		.define_singleton_method("dst_savings", &timezone_daylight_savings_time)
 		.define_singleton_method("country_timezones", &country_timezones)
-		.define_singleton_method("offset_timezones",
-				(icu::StringEnumeration* (*)(int32_t))
-				&icu::TimeZone::createEnumeration)
-		.define_singleton_method("timezones",
-				(icu::StringEnumeration* (*)())
-				&icu::TimeZone::createEnumeration);
+		.define_singleton_method("offset_timezones", (icu::StringEnumeration* (*)(int32_t)) &icu::TimeZone::createEnumeration)
+		.define_singleton_method("timezone_data_version", &timezone_data_version)
+		.define_singleton_method("timezones", (icu::StringEnumeration* (*)()) &icu::TimeZone::createEnumeration);
 
 	rb_eICURuntimeError = rb_cICUCalendar.define_class("RuntimeError", rb_eRuntimeError);
 }

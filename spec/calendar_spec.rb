@@ -66,6 +66,11 @@ module ICU
           expect(Calendar.offset_timezones(3_600_000)).to include('Europe/Berlin')
         end
       end
+
+      describe 'timezone data version' do
+        subject { Calendar.timezone_data_version }
+        it { should be_a String }
+      end
     end
   end
 end
