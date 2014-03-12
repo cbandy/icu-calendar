@@ -53,6 +53,13 @@ module ICU
         end
       end
 
+      describe 'daylight savings' do
+        it 'returns the milliseconds added during daylight savings time' do
+          expect(Calendar.dst_savings('America/Chicago')).to be(3_600_000)
+          expect(Calendar.dst_savings('GMT')).to be(0)
+        end
+      end
+
       describe 'offset timezones' do
         it 'returns a list of timezones for an offset in milliseconds' do
           expect(Calendar.offset_timezones(-10_800_000)).to include('BET')

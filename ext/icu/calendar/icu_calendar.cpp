@@ -92,6 +92,11 @@ Rice::String timezone_canonical_id(Rice::Object /* class */, Rice::String id)
 	return to_ruby(result);
 }
 
+int32_t timezone_daylight_savings_time(Rice::Object /* class */, Rice::String id)
+{
+	return icu::TimeZone::createTimeZone(from_ruby<icu::UnicodeString>(id))->getDSTSavings();
+}
+
 Rice::Array country_timezones(Rice::Object /* class */, Rice::Object country)
 {
 	const char *str = country.is_nil() ? NULL : Rice::String(country).c_str();
@@ -107,6 +112,7 @@ void Init_icu_calendar()
 	rb_cICUCalendar = rb_mICU.define_class("Calendar")
 		.define_singleton_method("available_locales", &calendar_available_locales)
 		.define_singleton_method("canonical_timezone_identifier", &timezone_canonical_id)
+		.define_singleton_method("dst_savings", &timezone_daylight_savings_time)
 		.define_singleton_method("country_timezones", &country_timezones)
 		.define_singleton_method("offset_timezones",
 				(icu::StringEnumeration* (*)(int32_t))
