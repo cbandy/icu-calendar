@@ -1,18 +1,13 @@
-# encoding: UTF-8
-
 require 'icu/calendar'
 
 module ICU
-  describe Calendar do
-    it 'defines a RuntimeError' do
-      expect(Calendar::RuntimeError.new).to be_a(::RuntimeError)
+  describe ICU::Calendar do
+    def self.icu_version_at_least(version)
+      Gem::Version.new(version) <= Gem::Version.new(Calendar::Library.version)
     end
 
-    describe 'ICU version' do
-      subject { Calendar::ICU_VERSION }
-
-      it { should be_a String }
-      it { should match /^[0-9.]+$/ }
+    it 'defines a RuntimeError' do
+      expect(Calendar::RuntimeError.new).to be_a(::RuntimeError)
     end
 
     describe 'available locales' do
@@ -67,16 +62,27 @@ module ICU
         end
       end
 
-      describe 'offset timezones' do
-        it 'returns a list of timezones for an offset in milliseconds' do
-          expect(Calendar.offset_timezones(-10_800_000)).to include('BET')
-          expect(Calendar.offset_timezones(3_600_000)).to include('Europe/Berlin')
-        end
-      end
-
       describe 'timezone data version' do
         subject { Calendar.timezone_data_version }
         it { should be_a String }
+      end
+
+      describe 'timezone identifiers', if: icu_version_at_least('4.8') do
+        it 'returns timezones of a particular type' do
+          expect(Calendar.timezone_identifiers(:any)).to include('UTC')
+          expect(Calendar.timezone_identifiers(:canonical)).to include('Factory')
+          expect(Calendar.timezone_identifiers(:canonical_location)).to include('America/Chicago')
+        end
+
+        it 'filters timezones by country' do
+          expect(Calendar.timezone_identifiers(:any, 'US')).to_not include('UTC')
+          expect(Calendar.timezone_identifiers(:canonical, 'DE')).to eq(['Europe/Berlin'])
+        end
+
+        it 'filters timezones by offset in milliseconds' do
+          expect(Calendar.timezone_identifiers(:any, nil, -10_800_000)).to include('BET')
+          expect(Calendar.timezone_identifiers(:canonical, nil, 3_600_000)).to include('Europe/Berlin')
+        end
       end
     end
   end

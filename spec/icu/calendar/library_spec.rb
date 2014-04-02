@@ -1,0 +1,199 @@
+require 'icu/calendar/library'
+
+describe ICU::Calendar::Library do
+  Library = ICU::Calendar::Library
+
+  shared_examples 'an enumeration' do |name, values|
+    subject(:enum) { Library.enum_type(name) }
+
+    it { should be_an FFI::Enum }
+    specify { expect(enum.to_hash).to eq(values) }
+    specify { expect(Library.find_type(name)).to be }
+  end
+
+  def self.compiled_with_icu_version_at_least(version)
+    Gem::Version.new(version) <= Gem::Version.new(Library::U_ICU_VERSION)
+  end
+
+  describe 'Compiled ICU version' do
+    subject(:version) { Library::U_ICU_VERSION }
+
+    it { should be_a String }
+    it { should match /^[0-9.]+$/ }
+  end
+
+  describe 'Loaded ICU version' do
+    subject(:version) { Library.version }
+
+    it { should be_a Library::VersionInfo }
+    specify { expect(version.to_a).to be_all { |part| part.is_a? Integer } }
+    specify { expect(version.to_s).to match /^[0-9.]+$/ }
+  end
+
+  describe 'Reading from a UChar buffer' do
+    let(:length) { 1 }
+
+    it 'yields a buffer and an ErrorCode' do
+      Library.read_into_wchar_buffer(length) do |buffer, status|
+        expect(buffer).to be_an FFI::AbstractMemory
+        expect(buffer.size).to be(buffer.type_size * length)
+        expect(status).to be_a Library::ErrorCode
+        length
+      end
+    end
+
+    context 'when the status contains success' do
+      it 'reads from the buffer contents' do
+        result = Library.read_into_wchar_buffer(length) do |buffer, status|
+          buffer.write_uint16('A'.ord)
+          length
+        end
+
+        expect(result).to eq('A')
+      end
+
+      it 'returns a UTF-8 String' do
+        result = Library.read_into_wchar_buffer(length) do |buffer, status|
+          buffer.write_uint16(376)
+          length
+        end
+
+        expect(result).to eq("\xC5\xB8")
+        expect(result.encoding).to be(Encoding::UTF_8)
+      end
+    end
+
+    context 'when the status contains overflow' do
+      let(:overflow_error) { Library::U_BUFFER_OVERFLOW_ERROR }
+
+      it 'yields again with a new buffer and cleared status' do
+        invocations = 0
+        original_buffer = nil
+        original_length = 1
+        yielded_length = 2
+
+        Library.read_into_wchar_buffer(original_length) do |buffer, status|
+          case invocations += 1
+          when 1
+            original_buffer = buffer
+            status.write_int(overflow_error)
+          when 2
+            expect(buffer).to_not be(original_buffer)
+            expect(buffer.size).to be(buffer.type_size * yielded_length)
+            expect(status.success?).to be_true
+          end
+          yielded_length
+        end
+      end
+
+      it 'yields only twice' do
+        invocations = 0
+
+        expect {
+          Library.read_into_wchar_buffer(length) do |_, status|
+            invocations += 1
+            status.write_int(overflow_error)
+            length
+          end
+        }.to raise_error ICU::Calendar::RuntimeError
+
+        expect(invocations).to be(2)
+      end
+    end
+
+    context 'when the status is an error other than overflow' do
+      let(:error) { 5 }
+
+      it 'raises a RuntimeError immediately' do
+        invocations = 0
+
+        expect {
+          Library.read_into_wchar_buffer(length) do |_, status|
+            invocations += 1
+            status.write_int(error)
+          end
+        }.to raise_error ICU::Calendar::RuntimeError
+
+        expect(invocations).to be(1)
+      end
+    end
+  end
+
+  describe 'Creating a UChar buffer from a String' do
+    let(:utf8) { "RUB\xC5\xB8".force_encoding('UTF-8') }
+    let(:windows1252) { "RUB\x9F".force_encoding('Windows-1252') }
+
+    it 'yields a null-terminated buffer' do
+      Library.wchar_buffer_from_string('') do |buffer|
+        expect(buffer).to be_an FFI::AbstractMemory
+        expect(buffer.get_uint16(buffer.size - buffer.type_size)).to be(0)
+      end
+    end
+
+    it 'converts a Ruby String to UChar' do
+      Library.wchar_buffer_from_string(utf8) do |buffer|
+        expect(buffer.read_array_of_uint16(buffer.size / buffer.type_size)).to eq([82, 85, 66, 376, 0])
+      end
+
+      Library.wchar_buffer_from_string(windows1252) do |buffer|
+        expect(buffer.read_array_of_uint16(buffer.size / buffer.type_size)).to eq([82, 85, 66, 376, 0])
+      end
+    end
+  end
+
+  describe 'AM/PM' do
+    it_behaves_like 'an enumeration', :am_pm,
+      am: 0, pm: 1
+  end
+
+  describe 'Attribute' do
+    if compiled_with_icu_version_at_least('49')
+      it_behaves_like 'an enumeration', :attribute,
+        lenient: 0, first_day_of_week: 1, minimal_days_in_first_week: 2, repeated_wall_time: 3, skipped_wall_time: 4
+    else
+      it_behaves_like 'an enumeration', :attribute,
+        lenient: 0, first_day_of_week: 1, minimal_days_in_first_week: 2
+    end
+  end
+
+  describe 'Calendar Type' do
+    it_behaves_like 'an enumeration', :calendar_type,
+      default: 0, gregorian: 1
+  end
+
+  describe 'Date Field' do
+    it_behaves_like 'an enumeration', :date_field,
+      era: 0, year: 1, month: 2, week_of_year: 3, week_of_month: 4, date: 5, day_of_year: 6, day_of_month: 5, day_of_week: 7, day_of_week_in_month: 8,
+      am_pm: 9, hour: 10, hour_of_day: 11, minute: 12, second: 13, millisecond: 14, zone_offset: 15, dst_offset: 16,
+      year_woy: 17, dow_local: 18, extended_year: 19, julian_day: 20, milliseconds_in_day: 21, is_leap_month: 22, field_count: 23
+  end
+
+  describe 'Day of Week' do
+    it_behaves_like 'an enumeration', :day_of_week,
+      sunday: 1, monday: 2, tuesday: 3, wednesday: 4, thursday: 5, friday: 6, saturday: 7
+  end
+
+  describe 'Display Name Type' do
+    it_behaves_like 'an enumeration', :display_name_type,
+      standard: 0, short_standard: 1, dst: 2, short_dst: 3
+  end
+
+  describe 'Limit Type' do
+    it_behaves_like 'an enumeration', :limit_type,
+      minimum: 0, maximum: 1, greatest_minimum: 2, least_maximum: 3, actual_minimum: 4, actual_maximum: 5
+  end
+
+  describe 'Month' do
+    it_behaves_like 'an enumeration', :month,
+      january: 0, february: 1, march: 2, april: 3, may: 4, june: 5, july: 6, august: 7, september: 8, october: 9, november: 10, december: 11, undecimber: 12
+  end
+
+  describe 'System Time Zone Type' do
+    if compiled_with_icu_version_at_least('4.8')
+      it_behaves_like 'an enumeration', :system_timezone_type,
+        any: 0, canonical: 1, canonical_location: 2
+    else
+      it_behaves_like 'an enumeration', :system_timezone_type, {}
+    end
+  end
+end
