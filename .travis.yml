@@ -1,8 +1,33 @@
-before_script:
-  sudo apt-get install libicu-dev
-
 rvm:
   - 1.9.2
   - 1.9.3
   - 2.0.0
   - 2.1.0
+
+matrix:
+  include:
+    - rvm: 1.9.2
+      env: ICU_VERSION=4.2.1
+    - rvm: 1.9.2
+      env: ICU_VERSION=53.1
+    - rvm: 2.1.0
+      env: ICU_VERSION=4.2.1
+    - rvm: 2.1.0
+      env: ICU_VERSION=53.1
+
+before_install: >
+  if [ "$ICU_VERSION" ] ; then
+    curl --tlsv1 "https://ssl.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-`echo $ICU_VERSION | tr . _`-src.tgz" | tar xz &&
+    cd icu/source &&
+    ./runConfigureICU Linux &&
+    make
+  else
+    sudo apt-get install libicu-dev
+  fi
+
+script: >
+  if [ "$ICU_VERSION" ] ; then
+    LD_LIBRARY_PATH="icu/source/lib" rake -- --with-icu-dir=icu/source
+  else
+    rake
+  fi
