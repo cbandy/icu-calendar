@@ -22,25 +22,9 @@ module ICU
       end
 
       def country_timezones(country)
-        result = []
-
-        Library::ErrorCode.new do |status|
-          enumeration = Library.ucal_openCountryTimeZones(country, status)
-          raise RuntimeError, status.to_s unless status.success?
-
-          begin
-            FFI::MemoryPointer.new(:int32) do |length|
-              until (pointer = Library.uenum_unext(enumeration, length, status)).null?
-                raise RuntimeError, status.to_s unless status.success?
-                result << pointer.read_array_of_uint16(length.read_int32).pack('U*')
-              end
-            end
-          ensure
-            Library.uenum_close(enumeration)
-          end
-        end
-
-        result
+        Library.read_wchar_enumeration(->(status) do
+          Library.ucal_openCountryTimeZones(country, status)
+        end).to_a
       end
 
       def dst_savings(timezone)
@@ -62,52 +46,19 @@ module ICU
       end
 
       def timezone_identifiers(type, region = nil, offset = nil)
-        result = []
+        offset = FFI::MemoryPointer.new(:int32).write_int32(offset) unless offset.nil?
 
-        Library::ErrorCode.new do |status|
-          offset = FFI::MemoryPointer.new(:int32).write_int32(offset) unless offset.nil?
-          begin
-            enumeration = Library.ucal_openTimeZoneIDEnumeration(type, region, offset, status)
-            raise RuntimeError, status.to_s unless status.success?
-
-            begin
-              FFI::MemoryPointer.new(:int32) do |length|
-                until (pointer = Library.uenum_unext(enumeration, length, status)).null?
-                  raise RuntimeError, status.to_s unless status.success?
-                  result << pointer.read_array_of_uint16(length.read_int32).pack('U*')
-                end
-              end
-            ensure
-              Library.uenum_close(enumeration)
-            end
-          ensure
-            offset.free unless offset.nil?
-          end
-        end
-
-        result
+        Library.read_wchar_enumeration(->(status) do
+          Library.ucal_openTimeZoneIDEnumeration(type, region, offset, status)
+        end).to_a
+      ensure
+        offset.free unless offset.nil?
       end
 
       def timezones
-        result = []
-
-        Library::ErrorCode.new do |status|
-          enumeration = Library.ucal_openTimeZones(status)
-          raise RuntimeError, status.to_s unless status.success?
-
-          begin
-            FFI::MemoryPointer.new(:int32) do |length|
-              until (pointer = Library.uenum_unext(enumeration, length, status)).null?
-                raise RuntimeError, status.to_s unless status.success?
-                result << pointer.read_array_of_uint16(length.read_int32).pack('U*')
-              end
-            end
-          ensure
-            Library.uenum_close(enumeration)
-          end
-        end
-
-        result
+        Library.read_wchar_enumeration(->(status) do
+          Library.ucal_openTimeZones(status)
+        end).to_a
       end
 
     end

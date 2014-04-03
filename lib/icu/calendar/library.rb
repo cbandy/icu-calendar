@@ -29,6 +29,28 @@ module ICU
           end
         end
 
+        def read_wchar_enumeration(open)
+          return enum_for(:read_wchar_enumeration, open) unless block_given?
+
+          Library::ErrorCode.new do |status|
+            enumeration = open.call(status)
+            raise RuntimeError, status.to_s unless status.success?
+
+            begin
+              FFI::MemoryPointer.new(:int32) do |length|
+                loop do
+                  pointer = Library.uenum_unext(enumeration, length, status)
+                  raise RuntimeError, status.to_s unless status.success?
+                  break if pointer.null?
+                  yield pointer.read_array_of_uint16(length.read_int32).pack('U*')
+                end
+              end
+            ensure
+              Library.uenum_close(enumeration)
+            end
+          end
+        end
+
         def version
           @version ||= VersionInfo.new.tap { |version| u_getVersion(version) }
         end

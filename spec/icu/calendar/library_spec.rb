@@ -141,6 +141,89 @@ describe ICU::Calendar::Library do
     end
   end
 
+  describe 'Reading a UEnumeration' do
+    context 'without a block' do
+      it 'returns an Enumerable' do
+        expect(Library.read_wchar_enumeration(double)).to be_an Enumerable
+      end
+    end
+
+    let(:opener) { double(call: nil) }
+    let(:null)   { double(null?: true) }
+
+    before do
+      allow(Library).to receive(:uenum_unext).and_return(null)
+      allow(Library).to receive(:uenum_close)
+    end
+
+    it 'calls the Proc with an ErrorCode' do
+      expect(opener).to receive(:call) do |status|
+        expect(status).to be_a Library::ErrorCode
+        expect(status).to be_success
+      end
+
+      Library.read_wchar_enumeration(opener) {}
+    end
+
+    context 'when the Proc status is not success' do
+      let(:opener) { lambda { |status| status.write_int(5) } }
+
+      it 'raises a RuntimeError' do
+        expect { Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
+      end
+    end
+
+    context 'when the enumeration is opened successfully' do
+      let(:enumeration) { double }
+      let(:opener) { double(call: enumeration) }
+
+      it 'closes the enumeration' do
+        expect(Library).to receive(:uenum_close).with(enumeration)
+        Library.read_wchar_enumeration(opener) {}
+      end
+
+      it 'calls uenum_unext' do
+        expect(Library).to receive(:uenum_unext) do |arg1, arg2, arg3|
+          expect(arg1).to be(enumeration)
+          expect(arg2).to be_an FFI::AbstractMemory
+          expect(arg3).to be_a Library::ErrorCode
+          expect(arg3).to be_success
+          null
+        end
+
+        Library.read_wchar_enumeration(opener) {}
+      end
+
+      context 'when uenum_unext fails' do
+        before { allow(Library).to receive(:uenum_unext) { |_, _, status| status.write_int(5) } }
+
+        it 'raises a RuntimeError' do
+          expect { Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
+        end
+
+        it 'closes the enumeration' do
+          expect(Library).to receive(:uenum_close).with(enumeration)
+          Library.read_wchar_enumeration(opener) {} rescue ICU::Calendar::RuntimeError
+        end
+      end
+
+      context 'when uenum_unext succeeds' do
+        let(:length)  { double(read_int32: 0) }
+        let(:pointer) { double(null?: false, read_array_of_uint16: [82, 85, 66, 376]) }
+
+        it 'yields next UTF-8 string in the enumeration' do
+          expect(Library).to receive(:uenum_unext).ordered.and_return(pointer)
+          expect(Library).to receive(:uenum_unext).ordered.and_return(null)
+
+          Library.read_wchar_enumeration(opener) do |result|
+            expect(result).to eq("RUB\u0178")
+            expect(result.encoding).to be(Encoding::UTF_8)
+          end
+        end
+      end
+    end
+  end
+
   describe 'AM/PM' do
     it_behaves_like 'an enumeration', :am_pm,
       am: 0, pm: 1
