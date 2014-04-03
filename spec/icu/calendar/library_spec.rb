@@ -58,7 +58,7 @@ describe ICU::Calendar::Library do
           length
         end
 
-        expect(result).to eq("\xC5\xB8")
+        expect(result).to eq("\u0178")
         expect(result.encoding).to be(Encoding::UTF_8)
       end
     end
