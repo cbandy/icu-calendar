@@ -17,7 +17,7 @@ matrix:
 
 before_install: >
   if [ "$ICU_VERSION" ] ; then
-    curl --tlsv1 "https://ssl.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-`echo $ICU_VERSION | tr . _`-src.tgz" | tar xz &&
+    curl "http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-`echo $ICU_VERSION | tr . _`-src.tgz" | tar xz &&
     cd icu/source &&
     ./runConfigureICU Linux &&
     make
