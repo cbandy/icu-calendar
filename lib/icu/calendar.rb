@@ -34,29 +34,24 @@ module ICU
       end
 
       def default_timezone=(timezone)
-        Library::ErrorCode.new do |status|
-          Library.wchar_buffer_from_string(timezone) do |timezone|
+        Library.wchar_buffer_from_string(timezone) do |timezone|
+          Library.assert_success do |status|
             Library.ucal_setDefaultTimeZone(timezone, status)
-            raise RuntimeError, status.to_s unless status.success?
           end
         end
       end
 
       def dst_savings(timezone)
-        Library::ErrorCode.new do |status|
-          Library.wchar_buffer_from_string(timezone) do |timezone|
-            result = Library.ucal_getDSTSavings(timezone, status)
-            raise RuntimeError, status.to_s unless status.success?
-            return result
+        Library.wchar_buffer_from_string(timezone) do |timezone|
+          Library.assert_success do |status|
+            Library.ucal_getDSTSavings(timezone, status)
           end
         end
       end
 
       def timezone_data_version
-        Library::ErrorCode.new do |status|
-          result = Library.ucal_getTZDataVersion(status)
-          raise RuntimeError, status.to_s unless status.success?
-          return result
+        Library.assert_success do |status|
+          Library.ucal_getTZDataVersion(status)
         end
       end
 
