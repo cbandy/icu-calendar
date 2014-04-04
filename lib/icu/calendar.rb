@@ -9,8 +9,8 @@ module ICU
 
       def canonical_timezone_identifier(timezone)
         FFI::MemoryPointer.new(:bool) do |is_system_id|
-          Library.wchar_buffer_from_string(timezone) do |timezone|
-            return Library.read_into_wchar_buffer(32) do |buffer, status|
+          return Library.wchar_buffer_from_string(timezone) do |timezone|
+            Library.read_into_wchar_buffer(32) do |buffer, status|
               Library.ucal_getCanonicalTimeZoneID(
                 timezone, -1,
                 buffer, buffer.size / buffer.type_size,
