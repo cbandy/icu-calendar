@@ -22,7 +22,7 @@ before_install:
       curl "http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
       mkdir icu/build
       cd icu/source
-      ./runConfigureICU Linux --prefix="$(dirname $(pwd))/build"
+      ./runConfigureICU Linux --disable-extras --disable-samples --disable-tests --prefix="$(dirname $(pwd))/build"
       make --quiet
       make --quiet install
     )
