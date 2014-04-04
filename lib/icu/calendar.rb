@@ -27,6 +27,21 @@ module ICU
         end).to_a
       end
 
+      def default_timezone
+        Library.read_into_wchar_buffer(32) do |buffer, status|
+          Library.ucal_getDefaultTimeZone(buffer, buffer.size / buffer.type_size, status)
+        end
+      end
+
+      def default_timezone=(timezone)
+        Library::ErrorCode.new do |status|
+          Library.wchar_buffer_from_string(timezone) do |timezone|
+            Library.ucal_setDefaultTimeZone(timezone, status)
+            raise RuntimeError, status.to_s unless status.success?
+          end
+        end
+      end
+
       def dst_savings(timezone)
         Library::ErrorCode.new do |status|
           Library.wchar_buffer_from_string(timezone) do |timezone|

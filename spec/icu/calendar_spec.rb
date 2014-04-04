@@ -63,6 +63,26 @@ describe ICU::Calendar do
       end
     end
 
+    describe 'default timezone' do
+      subject(:default) { Calendar.default_timezone }
+
+      let(:timezone) do
+        timezones = Calendar.timezones
+        timezones.delete(Calendar.default_timezone)
+        timezones.sample
+      end
+
+      it 'is a UTF-8 String' do
+        expect(default).to be_a String
+        expect(default.encoding).to be(Encoding::UTF_8)
+      end
+
+      it 'can be assigned' do
+        expect(Calendar.default_timezone = timezone).to eq(timezone)
+        expect(Calendar.default_timezone).to eq(timezone)
+      end
+    end
+
     describe 'timezone data version' do
       subject { Calendar.timezone_data_version }
       it { should be_a String }
