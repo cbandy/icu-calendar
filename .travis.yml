@@ -15,19 +15,21 @@ matrix:
     - rvm: 2.1.0
       env: ICU_VERSION=53.1
 
-before_install: >
-  if [ "$ICU_VERSION" ] ; then
-    curl "http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-`echo $ICU_VERSION | tr . _`-src.tgz" | tar xz &&
-    cd icu/source &&
-    ./runConfigureICU Linux &&
-    make
-  else
-    sudo apt-get install libicu-dev
-  fi
+before_install:
+  - test -n "$ICU_VERSION" || sudo apt-get install libicu-dev
+  - >
+    test -z "$ICU_VERSION" || (
+      curl "http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
+      mkdir icu/build
+      cd icu/source
+      ./runConfigureICU Linux --prefix="$(dirname $(pwd))/build"
+      make --quiet
+      make --quiet install
+    )
 
 script: >
   if [ "$ICU_VERSION" ] ; then
-    LD_LIBRARY_PATH="icu/source/lib" rake -- --with-icu-dir=icu/source
+    LD_LIBRARY_PATH="$(pwd)/icu/build/lib" rake -- --with-icu-dir="$(pwd)/icu/build"
   else
     rake
   fi
