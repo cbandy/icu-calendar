@@ -163,6 +163,11 @@ describe ICU::Calendar::Library do
         expect(buffer.read_array_of_uint16(buffer.size / buffer.type_size)).to eq([82, 85, 66, 376, 0])
       end
     end
+
+    it 'returns the result of the passed block' do
+      result = double
+      expect(Library.wchar_buffer_from_string('') { result }).to be(result)
+    end
   end
 
   describe 'Reading a UEnumeration' do

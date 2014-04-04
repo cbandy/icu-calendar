@@ -67,7 +67,7 @@ module ICU
           codepoints = string.encode('UTF-8').unpack('U*') << 0
           FFI::Buffer.new(:uint16, codepoints.length, false) do |buffer|
             buffer.write_array_of_uint16(codepoints)
-            yield buffer
+            return yield buffer
           end
         end
 
