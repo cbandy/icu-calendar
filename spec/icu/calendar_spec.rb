@@ -46,7 +46,7 @@ describe ICU::Calendar do
 
     describe 'country timezones' do
       it 'returns a list of timezones associated with a country' do
-        expect(Calendar.country_timezones('DE')).to eq(['Europe/Berlin'])
+        expect(Calendar.country_timezones('DE')).to include('Europe/Berlin')
         expect(Calendar.country_timezones('US')).to include('America/Chicago')
         expect(Calendar.country_timezones('CN')).to_not include('UTC')
       end
@@ -77,7 +77,7 @@ describe ICU::Calendar do
 
       it 'filters timezones by country' do
         expect(Calendar.timezone_identifiers(:any, 'US')).to_not include('UTC')
-        expect(Calendar.timezone_identifiers(:canonical, 'DE')).to eq(['Europe/Berlin'])
+        expect(Calendar.timezone_identifiers(:canonical, 'DE')).to include('Europe/Berlin')
       end
 
       it 'filters timezones by offset in milliseconds' do
