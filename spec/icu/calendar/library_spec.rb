@@ -30,6 +30,30 @@ describe ICU::Calendar::Library do
     specify { expect(version.to_s).to match /^[0-9.]+$/ }
   end
 
+  describe 'Asserting a successful status' do
+    specify { expect { |block| Library.assert_success(&block) }.to yield_control }
+
+    it 'yields an ErrorCode' do
+      Library.assert_success do |status|
+        expect(status).to be_a Library::ErrorCode
+        expect(status).to be_success
+      end
+    end
+
+    context 'when the status contains success' do
+      it 'returns the result of the passed block' do
+        result = double
+        expect(Library.assert_success { result }).to be(result)
+      end
+    end
+
+    context 'when the status contains failure' do
+      it 'raises a RuntimeError' do
+        expect { Library.assert_success { |status| status.write_int(5) } }.to raise_error(ICU::Calendar::RuntimeError)
+      end
+    end
+  end
+
   describe 'Reading from a UChar buffer' do
     let(:length) { 1 }
 

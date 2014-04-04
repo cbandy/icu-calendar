@@ -15,6 +15,14 @@ module ICU
       end
 
       class << self
+        def assert_success
+          ErrorCode.new do |status|
+            result = yield status
+            raise RuntimeError, status.to_s unless status.success?
+            return result
+          end
+        end
+
         def read_into_wchar_buffer(length)
           ErrorCode.new do |status|
             for attempts in 1..2
