@@ -201,7 +201,7 @@ describe ICU::Calendar do
     subject(:calendar) { Calendar.new }
 
     it 'is the number of milliseconds since 1970-01-01 00:00:00 UTC' do
-      expect(calendar.time).to be_within(10).of(Time.now.utc.to_f * 1000)
+      expect(calendar.time).to be_within(1000).of(Time.now.utc.to_f * 1000)
       expect(calendar.time).to be_a Float
     end
 
