@@ -206,9 +206,9 @@ describe ICU::Calendar do
     end
 
     describe 'assignment' do
-      let(:datetime) { DateTime.civil(2012, 11, 15, 0, 4, 0) }
-      let(:integer)  { 1352937840_000 }
-      let(:time)     { Time.local(2012, 11, 15, 0, 4, 0) }
+      let(:datetime) { DateTime.iso8601(:'2012-11-15T00:04:01Z') }
+      let(:integer)  { 1352937841_000 }
+      let(:time)     { Time.utc(2012, 11, 15, 0, 4, 1) }
 
       it 'can be assigned with an Integer' do
         expect(calendar.time = integer).to be(integer)
