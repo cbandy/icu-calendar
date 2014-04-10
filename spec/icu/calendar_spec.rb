@@ -76,6 +76,9 @@ describe ICU::Calendar do
         timezones.sample
       end
 
+      before { @original = Calendar.default_timezone }
+      after  { Calendar.default_timezone = @original }
+
       it 'is a UTF-8 String' do
         expect(default).to be_a String
         expect(default.encoding).to be(Encoding::UTF_8)
