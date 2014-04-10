@@ -168,6 +168,20 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#daylight_time?' do
+    subject(:calendar) { Calendar.new('US/Central') }
+
+    specify do
+      calendar.time = Time.new(2010, 5, 8)
+      expect(calendar).to be_daylight_time
+    end
+
+    specify do
+      calendar.time = Time.new(2012, 11, 15)
+      expect(calendar).to_not be_daylight_time
+    end
+  end
+
   describe '#locale' do
     it 'returns the locale' do
       expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')

@@ -72,6 +72,12 @@ module ICU
       end
     end
 
+    def daylight_time?
+      Library.assert_success do |status|
+        Library.ucal_inDaylightTime(@calendar, status)
+      end
+    end
+
     def initialize(timezone = nil, locale = nil)
       calendar = wchar_buffer_from_string_or_nil(timezone) do |timezone|
         Library.assert_success do |status|
