@@ -180,6 +180,44 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#time' do
+    subject(:calendar) { Calendar.new }
+
+    it 'is the number of milliseconds since 1970-01-01 00:00:00 UTC' do
+      expect(calendar.time).to be_within(10).of(Time.now.utc.to_f * 1000)
+      expect(calendar.time).to be_a Float
+    end
+
+    describe 'assignment' do
+      let(:datetime) { DateTime.civil(2012, 11, 15, 0, 4, 0) }
+      let(:integer)  { 1352937840_000 }
+      let(:time)     { Time.local(2012, 11, 15, 0, 4, 0) }
+
+      it 'can be assigned with an Integer' do
+        expect(calendar.time = integer).to be(integer)
+        expect(calendar.time).to eq(integer)
+        expect(calendar.time).to be_a Float
+      end
+
+      it 'can be assigned with a Time' do
+        expect(calendar.time = time).to be(time)
+        expect(calendar.time).to eq(integer)
+        expect(calendar.time).to be_a Float
+      end
+
+      it 'does not modify the passed Time' do
+        expect { calendar.time = time }.to_not change { time.utc? }
+      end
+
+      it 'can be assigned with a DateTime' do
+        require 'date'
+        expect(calendar.time = datetime).to be(datetime)
+        expect(calendar.time).to eq(integer)
+        expect(calendar.time).to be_a Float
+      end
+    end
+  end
+
   describe '#timezone', if: icu_version_at_least('51') do
     subject(:calendar) { Calendar.new }
     let(:timezone) do

@@ -88,6 +88,21 @@ module ICU
       end
     end
 
+    def time
+      Library.assert_success do |status|
+        Library.ucal_getMillis(@calendar, status)
+      end
+    end
+
+    def time=(time)
+      time = time.to_time if time.respond_to? :to_time
+      time = time.dup.utc.to_f * 1000 if time.is_a? Time
+
+      Library.assert_success do |status|
+        Library.ucal_setMillis(@calendar, time, status)
+      end
+    end
+
     def timezone
       Library.read_into_wchar_buffer(32) do |buffer, status|
         Library.ucal_getTimeZoneID(@calendar, buffer, buffer.size / buffer.type_size, status)
