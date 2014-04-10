@@ -192,5 +192,14 @@ describe ICU::Calendar do
       expect(calendar.timezone = timezone).to eq(timezone)
       expect(calendar.timezone).to eq(timezone)
     end
+
+    context 'when assigned nil' do
+      subject(:calendar) { Calendar.new(timezone) }
+
+      it 'uses the default locale' do
+        expect(calendar.timezone = nil).to be_nil
+        expect(calendar.timezone).to eq(Calendar.default_timezone)
+      end
+    end
   end
 end
