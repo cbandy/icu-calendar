@@ -73,13 +73,9 @@ module ICU
     end
 
     def initialize(timezone = nil, locale = nil)
-      calendar = Library.assert_success do |status|
-        if timezone
-          Library.wchar_buffer_from_string(timezone) do |timezone|
-            Library.ucal_open(timezone, -1, locale, :default, status)
-          end
-        else
-          Library.ucal_open(nil, 0, locale, :default, status)
+      calendar = wchar_buffer_from_string_or_nil(timezone) do |timezone|
+        Library.assert_success do |status|
+          Library.ucal_open(timezone, -1, locale, :default, status)
         end
       end
 
@@ -99,13 +95,21 @@ module ICU
     end
 
     def timezone=(timezone)
-      Library.assert_success do |status|
-        if timezone
-          Library.wchar_buffer_from_string(timezone) do |timezone|
-            Library.ucal_setTimeZone(@calendar, timezone, -1, status)
-          end
-        else
-          Library.ucal_setTimeZone(@calendar, nil, 0, status)
+      wchar_buffer_from_string_or_nil(timezone) do |timezone|
+        Library.assert_success do |status|
+          Library.ucal_setTimeZone(@calendar, timezone, -1, status)
+        end
+      end
+    end
+
+    private
+
+    def wchar_buffer_from_string_or_nil(string)
+      if string.nil?
+        yield string
+      else
+        Library.wchar_buffer_from_string(string) do |buffer|
+          yield buffer
         end
       end
     end
