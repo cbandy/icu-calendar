@@ -253,6 +253,12 @@ describe ICU::Calendar::Library do
     end
   end
 
+  describe 'Default Locale' do
+    subject(:default) { Library.uloc_getDefault }
+
+    it { should be_a String }
+  end
+
   describe 'AM/PM' do
     it_behaves_like 'an enumeration', :am_pm,
       am: 0, pm: 1
@@ -293,6 +299,11 @@ describe ICU::Calendar::Library do
   describe 'Limit Type' do
     it_behaves_like 'an enumeration', :limit_type,
       minimum: 0, maximum: 1, greatest_minimum: 2, least_maximum: 3, actual_minimum: 4, actual_maximum: 5
+  end
+
+  describe 'Locale Type' do
+    it_behaves_like 'an enumeration', :locale_type,
+      actual: 0, valid: 1
   end
 
   describe 'Month' do

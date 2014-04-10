@@ -89,6 +89,7 @@ module ICU
       enum :day_of_week,              day_of_week_enum
       enum :display_name_type,        display_name_type_enum
       enum :limit_type,               limit_type_enum
+      enum :locale_type,              locale_type_enum
       enum :month,                    month_enum
       enum :system_timezone_type,     system_timezone_type_enum
       enum :timezone_transition_type, [] #timezone_transition_type_enum
@@ -113,6 +114,7 @@ module ICU
       # Locales
       attach_icu_function :ucal_countAvailable, :int32,  []
       attach_icu_function :ucal_getAvailable,   :string, [:int32]
+      attach_icu_function :uloc_getDefault,     :string, []
 
       # Time Zones
       attach_icu_function :ucal_getCanonicalTimeZoneID, :int32,  [:buffer_in, :int32, :buffer_out, :int32, :buffer_out, :status]
@@ -130,15 +132,16 @@ module ICU
       attach_icu_function :ucal_equivalentTo, :bool,     [:calendar, :calendar]
       attach_icu_function :ucal_open,         :calendar, [:buffer_in, :int32, :string, :calendar_type, :status]
 
-      attach_icu_function :ucal_getAttribute,           :int32, [:calendar, :attribute]
-      attach_icu_function :ucal_getMillis,              :date,  [:calendar, :status]
-      attach_icu_function :ucal_getTimeZoneDisplayName, :int32, [:calendar, :display_name_type, :string, :buffer_out, :int32, :status]
-      attach_icu_function :ucal_inDaylightTime,         :bool,  [:calendar, :status]
-      attach_icu_function :ucal_setAttribute,           :void,  [:calendar, :attribute, :int32]
-      attach_icu_function :ucal_setDate,                :void,  [:calendar, :int32, :month, :int32, :status]
-      attach_icu_function :ucal_setDateTime,            :void,  [:calendar, :int32, :month, :int32, :int32, :int32, :int32, :status]
-      attach_icu_function :ucal_setMillis,              :void,  [:calendar, :date, :status]
-      attach_icu_function :ucal_setTimeZone,            :void,  [:calendar, :buffer_in, :int32, :status]
+      attach_icu_function :ucal_getAttribute,           :int32,  [:calendar, :attribute]
+      attach_icu_function :ucal_getLocaleByType,        :string, [:calendar, :locale_type, :status]
+      attach_icu_function :ucal_getMillis,              :date,   [:calendar, :status]
+      attach_icu_function :ucal_getTimeZoneDisplayName, :int32,  [:calendar, :display_name_type, :string, :buffer_out, :int32, :status]
+      attach_icu_function :ucal_inDaylightTime,         :bool,   [:calendar, :status]
+      attach_icu_function :ucal_setAttribute,           :void,   [:calendar, :attribute, :int32]
+      attach_icu_function :ucal_setDate,                :void,   [:calendar, :int32, :month, :int32, :status]
+      attach_icu_function :ucal_setDateTime,            :void,   [:calendar, :int32, :month, :int32, :int32, :int32, :int32, :status]
+      attach_icu_function :ucal_setMillis,              :void,   [:calendar, :date, :status]
+      attach_icu_function :ucal_setTimeZone,            :void,   [:calendar, :buffer_in, :int32, :status]
 
       # Calendar Fields
       attach_icu_function :ucal_add,        :void,  [:calendar, :date_field, :int32, :status]
@@ -165,8 +168,9 @@ module ICU
         attach_icu_function :ucal_getTimeZoneTransitionDate, :bool, [:calendar, :timezone_transition_type, :buffer_out, :status]
       end
 
-      # ICU >= 51
-      #attach_icu_function :ucal_getTimeZoneID, :int32, [:calendar, :buffer_out, :int32, :status]
+      if icu_version_at_least('51')
+        attach_icu_function :ucal_getTimeZoneID, :int32, [:calendar, :buffer_out, :int32, :status]
+      end
     end
   end
 end

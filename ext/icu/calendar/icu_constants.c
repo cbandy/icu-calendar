@@ -2,6 +2,7 @@
 
 #include "ruby.h"
 #include "unicode/ucal.h"
+#include "unicode/uloc.h"
 #include "unicode/utypes.h"
 #include "unicode/uversion.h"
 
@@ -113,6 +114,15 @@ icu_calendar_limit_type_enum(VALUE module)
 }
 
 static VALUE
+icu_calendar_locale_type_enum(VALUE module)
+{
+	VALUE result = rb_ary_new2(2);
+	push_enum(result, "actual", ULOC_ACTUAL_LOCALE);
+	push_enum(result, "valid",  ULOC_VALID_LOCALE);
+	return result;
+}
+
+static VALUE
 icu_calendar_month_enum(VALUE module)
 {
 	VALUE result = rb_ary_new2(13);
@@ -167,6 +177,7 @@ void Init_icu_constants()
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "day_of_week_enum", icu_calendar_day_of_week_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "display_name_type_enum", icu_calendar_display_name_type_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "limit_type_enum", icu_calendar_limit_type_enum, 0);
+	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "locale_type_enum", icu_calendar_locale_type_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "month_enum", icu_calendar_month_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "system_timezone_type_enum", icu_calendar_system_timezone_type_enum, 0);
 }

@@ -70,7 +70,44 @@ module ICU
           Library.ucal_openTimeZones(status)
         end).to_a
       end
+    end
 
+    def initialize(timezone = nil, locale = nil)
+      calendar = Library.assert_success do |status|
+        if timezone
+          Library.wchar_buffer_from_string(timezone) do |timezone|
+            Library.ucal_open(timezone, -1, locale, :default, status)
+          end
+        else
+          Library.ucal_open(nil, 0, locale, :default, status)
+        end
+      end
+
+      @calendar = FFI::AutoPointer.new(calendar, Library.method(:ucal_close))
+    end
+
+    def locale(type = :valid)
+      Library.assert_success do |status|
+        Library.ucal_getLocaleByType(@calendar, type, status)
+      end
+    end
+
+    def timezone
+      Library.read_into_wchar_buffer(32) do |buffer, status|
+        Library.ucal_getTimeZoneID(@calendar, buffer, buffer.size / buffer.type_size, status)
+      end
+    end
+
+    def timezone=(timezone)
+      Library.assert_success do |status|
+        if timezone
+          Library.wchar_buffer_from_string(timezone) do |timezone|
+            Library.ucal_setTimeZone(@calendar, timezone, -1, status)
+          end
+        else
+          Library.ucal_setTimeZone(@calendar, nil, 0, status)
+        end
+      end
     end
   end
 end

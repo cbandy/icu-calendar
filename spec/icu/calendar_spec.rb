@@ -7,6 +7,10 @@ describe ICU::Calendar do
     Gem::Version.new(version) <= Gem::Version.new(Calendar::Library.version)
   end
 
+  def icu_version_at_least(version)
+    self.class.icu_version_at_least(version)
+  end
+
   it 'defines a RuntimeError' do
     expect(Calendar::RuntimeError.new).to be_a(::RuntimeError)
   end
@@ -104,6 +108,89 @@ describe ICU::Calendar do
         expect(Calendar.timezone_identifiers(:any, nil, -10_800_000)).to include('BET')
         expect(Calendar.timezone_identifiers(:canonical, nil, 3_600_000)).to include('Europe/Berlin')
       end
+    end
+  end
+
+  describe 'initialization' do
+    context 'with no arguments' do
+      subject(:calendar) { Calendar.new }
+
+      it 'uses the default locale' do
+        expect(calendar.locale).to eq(Calendar::Library.uloc_getDefault)
+      end
+
+      it 'uses the default timezone' do
+        if icu_version_at_least('51')
+          expect(calendar.timezone).to eq(Calendar.default_timezone)
+        end
+      end
+    end
+
+    context 'with a nil timezone' do
+      subject(:calendar) { Calendar.new(nil) }
+
+      it 'uses the default timezone' do
+        if icu_version_at_least('51')
+          expect(calendar.timezone).to eq(Calendar.default_timezone)
+        end
+      end
+    end
+
+    context 'with a timezone' do
+      subject(:calendar) { Calendar.new(timezone) }
+      let(:timezone) do
+        timezones = Calendar.timezones
+        timezones.delete(Calendar.default_timezone)
+        timezones.sample
+      end
+
+      it 'uses that timezone' do
+        if icu_version_at_least('51')
+          expect(calendar.timezone).to eq(timezone)
+        end
+      end
+    end
+
+    context 'with a nil locale' do
+      subject(:calendar) { Calendar.new('UTC', nil) }
+
+      it 'uses the default locale' do
+        expect(calendar.locale).to eq(Calendar::Library.uloc_getDefault)
+      end
+    end
+
+    context 'with a locale' do
+      subject(:calendar) { Calendar.new(nil, 'de_DE') }
+
+      it 'uses that locale' do
+        expect(calendar.locale).to eq('de_DE')
+      end
+    end
+  end
+
+  describe '#locale' do
+    it 'returns the locale' do
+      expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')
+      expect(Calendar.new(nil, 'de').locale).to eq('de_DE')
+    end
+
+    it 'returns the locale in which the calendar rules are defined' do
+      expect(Calendar.new(nil, 'en_US').locale(:actual)).to eq('en')
+      expect(Calendar.new(nil, 'zh_TW').locale(:actual)).to eq('zh_Hant')
+    end
+  end
+
+  describe '#timezone', if: icu_version_at_least('51') do
+    subject(:calendar) { Calendar.new }
+    let(:timezone) do
+      timezones = Calendar.timezones
+      timezones.delete(Calendar.default_timezone)
+      timezones.sample
+    end
+
+    it 'can be assigned' do
+      expect(calendar.timezone = timezone).to eq(timezone)
+      expect(calendar.timezone).to eq(timezone)
     end
   end
 end
