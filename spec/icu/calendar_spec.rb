@@ -188,12 +188,22 @@ describe ICU::Calendar do
   describe '#locale' do
     it 'returns the locale' do
       expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')
-      expect(Calendar.new(nil, 'de').locale).to eq('de_DE')
+
+      if icu_version_at_least('4.6')
+        expect(Calendar.new(nil, 'de').locale).to eq('de_DE')
+      else
+        expect(Calendar.new(nil, 'de').locale).to eq('de')
+      end
     end
 
     it 'returns the locale in which the calendar rules are defined' do
-      expect(Calendar.new(nil, 'en_US').locale(:actual)).to eq('en')
-      expect(Calendar.new(nil, 'zh_TW').locale(:actual)).to eq('zh_Hant')
+      if icu_version_at_least('4.8')
+        expect(Calendar.new(nil, 'en_US').locale(:actual)).to eq('en')
+        expect(Calendar.new(nil, 'zh_TW').locale(:actual)).to eq('zh_Hant')
+      else
+        expect(Calendar.new(nil, 'en_US').locale(:actual)).to eq('en_US')
+        expect(Calendar.new(nil, 'zh_TW').locale(:actual)).to eq('zh_Hant_TW')
+      end
     end
   end
 
