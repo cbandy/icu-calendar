@@ -20,6 +20,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake-compiler'
   gem.add_development_dependency 'rspec', '>= 2.14'
   gem.add_runtime_dependency 'ffi'
-  gem.required_ruby_version = '>= 1.9.2'
+  gem.required_ruby_version = '>= 1.9.3'
   gem.requirements << 'ICU 4.2 or greater, http://www.icu-project.org/'
 end
