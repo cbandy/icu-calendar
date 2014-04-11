@@ -31,13 +31,16 @@ describe ICU::Calendar::Library do
   end
 
   describe 'Asserting a successful status' do
-    specify { expect { |block| Library.assert_success(&block) }.to yield_control }
-
     it 'yields an ErrorCode' do
+      yielded = false
+
       Library.assert_success do |status|
+        yielded = true
         expect(status).to be_a Library::ErrorCode
         expect(status).to be_success
       end
+
+      expect(yielded).to be_true
     end
 
     context 'when the status contains success' do
@@ -58,12 +61,17 @@ describe ICU::Calendar::Library do
     let(:length) { 1 }
 
     it 'yields a buffer and an ErrorCode' do
+      yielded = false
+
       Library.read_into_wchar_buffer(length) do |buffer, status|
+        yielded = true
         expect(buffer).to be_an FFI::AbstractMemory
         expect(buffer.size).to be(buffer.type_size * length)
         expect(status).to be_a Library::ErrorCode
         length
       end
+
+      expect(yielded).to be_true
     end
 
     context 'when the status contains success' do
@@ -108,6 +116,8 @@ describe ICU::Calendar::Library do
           end
           yielded_length
         end
+
+        expect(invocations).to be(2)
       end
 
       it 'yields only twice' do
