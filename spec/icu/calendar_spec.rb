@@ -171,6 +171,32 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#[]' do
+    subject(:calendar) { Calendar.new }
+
+    it 'gets the requested field of the assigned time' do
+      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
+
+      expect(calendar[:year]).to eq(2012)
+      expect(calendar[:month]).to eq(:november)
+      expect(calendar[:day_of_month]).to eq(15)
+      expect(calendar[:day_of_week]).to eq(:thursday)
+      expect(calendar[:hour]).to eq(0)
+      expect(calendar[:minute]).to eq(4)
+      expect(calendar[:second]).to eq(1)
+      expect(calendar[:am_pm]).to eq(:am)
+    end
+
+    it 'returns raw values when called with an Integer' do
+      date_field_enum = Calendar::Library.enum_type(:date_field)
+      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
+
+      expect(calendar[date_field_enum[:month]]).to eq(10)
+      expect(calendar[date_field_enum[:day_of_week]]).to eq(5)
+      expect(calendar[date_field_enum[:am_pm]]).to eq(0)
+    end
+  end
+
   describe '#daylight_time?' do
     subject(:calendar) { Calendar.new('US/Central') }
 

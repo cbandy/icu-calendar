@@ -72,6 +72,19 @@ module ICU
       end
     end
 
+    def [](field)
+      result = Library.assert_success do |status|
+        Library.ucal_get(@calendar, field, status)
+      end
+
+      case field
+      when :am_pm, :day_of_week, :month
+        Library.enum_type(field)[result]
+      else
+        result
+      end
+    end
+
     def daylight_time?
       Library.assert_success do |status|
         Library.ucal_inDaylightTime(@calendar, status)
