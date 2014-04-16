@@ -91,6 +91,10 @@ module ICU
       end
     end
 
+    def equivalent?(other)
+      Calendar === other && Library.ucal_equivalentTo(@calendar, other.instance_variable_get(:@calendar))
+    end
+
     def first_day_of_week
       Library.enum_type(:day_of_week)[Library.ucal_getAttribute(@calendar, :first_day_of_week)]
     end

@@ -211,6 +211,43 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#equivalent?' do
+    subject(:calendar) { Calendar.new }
+    let(:other)        { Calendar.new }
+    let(:timezone) do
+      timezones = Calendar.timezones
+      timezones.delete(Calendar.default_timezone)
+      timezones.sample
+    end
+
+    it 'compares the behavior of two Calendars' do
+      expect(calendar).to be_equivalent(calendar)
+      expect(calendar).to be_equivalent(other)
+    end
+
+    it 'does not compare the time of two Calendars' do
+      other.time = Time.new(2000, 1, 1)
+
+      expect(calendar.time).to_not eq(other.time)
+      expect(calendar).to be_equivalent(other)
+    end
+
+    it 'returns false when the timezones differ' do
+      other.timezone = timezone
+      expect(calendar).to_not be_equivalent(other)
+    end
+
+    it 'returns false when the attributes differ' do
+      other.first_day_of_week = :wednesday
+      expect(calendar).to_not be_equivalent(other)
+    end
+
+    it 'returns false for values other than Calendar' do
+      expect(calendar).to_not be_equivalent(:symbol)
+      expect(calendar).to_not be_equivalent(Time.new)
+    end
+  end
+
   describe '#first_day_of_week' do
     subject(:calendar) { Calendar.new(nil, 'en_US') }
 
