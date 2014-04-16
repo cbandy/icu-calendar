@@ -211,6 +211,24 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#first_day_of_week' do
+    subject(:calendar) { Calendar.new(nil, 'en_US') }
+
+    it 'returns a Day of Week' do
+      expect(calendar.first_day_of_week).to be(:sunday)
+    end
+
+    it 'can be assigned using a Day of Week' do
+      expect(calendar.first_day_of_week = :monday).to be(:monday)
+      expect(calendar.first_day_of_week).to be(:monday)
+    end
+
+    it 'can be assigned using an Integer' do
+      expect(calendar.first_day_of_week = 5).to be(5)
+      expect(calendar.first_day_of_week).to be(:thursday)
+    end
+  end
+
   describe '#locale' do
     it 'returns the locale' do
       expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')

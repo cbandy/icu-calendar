@@ -91,6 +91,15 @@ module ICU
       end
     end
 
+    def first_day_of_week
+      Library.enum_type(:day_of_week)[Library.ucal_getAttribute(@calendar, :first_day_of_week)]
+    end
+
+    def first_day_of_week=(day_of_week)
+      day_of_week = Library.enum_type(:day_of_week)[day_of_week] if Symbol === day_of_week
+      Library.ucal_setAttribute(@calendar, :first_day_of_week, day_of_week)
+    end
+
     def initialize(timezone = nil, locale = nil)
       calendar = wchar_buffer_from_string_or_nil(timezone) do |timezone|
         Library.assert_success do |status|
