@@ -211,6 +211,36 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#eql?' do
+    subject(:calendar) { Calendar.new }
+    let(:other) { Calendar.new }
+    let(:time)  { Time.now }
+
+    it 'compares the behavior of two Calendars and their time' do
+      calendar.time = time
+      other.time = time
+
+      expect(calendar).to eql(other)
+    end
+
+    it 'returns false when the Calendars have different times' do
+      calendar.time = time
+      other.time = time + 1
+
+      expect(calendar).to_not eql(other)
+    end
+
+    it 'returns false when the Calendars are not equivalent' do
+      other.first_day_of_week = :wednesday
+      expect(calendar).to_not eql(other)
+    end
+
+    it 'returns false for values other than Calendar' do
+      expect(calendar).to_not eql(:symbol)
+      expect(calendar).to_not eql(Time.new)
+    end
+  end
+
   describe '#equivalent?' do
     subject(:calendar) { Calendar.new }
     let(:other)        { Calendar.new }

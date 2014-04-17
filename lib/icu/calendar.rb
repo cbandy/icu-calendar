@@ -91,6 +91,10 @@ module ICU
       end
     end
 
+    def eql?(other)
+      equivalent?(other) && time == other.time
+    end
+
     def equivalent?(other)
       Calendar === other && Library.ucal_equivalentTo(@calendar, other.instance_variable_get(:@calendar))
     end
