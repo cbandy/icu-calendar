@@ -91,12 +91,24 @@ module ICU
       end
     end
 
+    def dup
+      calendar = automatically_close(
+        Library.assert_success do |status|
+          Library.ucal_clone(@calendar, status)
+        end
+      )
+
+      result = self.class.allocate
+      result.calendar = calendar
+      result
+    end
+
     def eql?(other)
       equivalent?(other) && time == other.time
     end
 
     def equivalent?(other)
-      Calendar === other && Library.ucal_equivalentTo(@calendar, other.instance_variable_get(:@calendar))
+      Calendar === other && Library.ucal_equivalentTo(@calendar, other.calendar)
     end
 
     def first_day_of_week
@@ -115,7 +127,7 @@ module ICU
         end
       end
 
-      @calendar = FFI::AutoPointer.new(calendar, Library.method(:ucal_close))
+      @calendar = automatically_close(calendar)
     end
 
     def locale(type = :valid)
@@ -153,7 +165,15 @@ module ICU
       end
     end
 
+    protected
+
+    attr_accessor :calendar
+
     private
+
+    def automatically_close(calendar_pointer)
+      FFI::AutoPointer.new(calendar_pointer, Library.method(:ucal_close))
+    end
 
     def wchar_buffer_from_string_or_nil(string)
       if string.nil?

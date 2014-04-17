@@ -211,6 +211,16 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#dup' do
+    let(:original) { Calendar.new }
+    subject(:copy) { original.dup }
+
+    it 'creates a copy' do
+      expect(copy).to eql(original)
+      expect(copy).to_not be(original)
+    end
+  end
+
   describe '#eql?' do
     subject(:calendar) { Calendar.new }
     let(:other) { Calendar.new }
