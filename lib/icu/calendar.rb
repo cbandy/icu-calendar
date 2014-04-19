@@ -2,6 +2,8 @@ require 'icu/calendar/library'
 
 module ICU
   class Calendar
+    include Comparable
+
     class << self
       def available_locales
         (0...Library.ucal_countAvailable).map { |i| Library.ucal_getAvailable(i) }
@@ -85,6 +87,14 @@ module ICU
       end
     end
 
+    def <=>(other)
+      if Calendar === other
+        time <=> other.time
+      else
+        time <=> coerce_to_milliseconds(other)
+      end
+    end
+
     def daylight_time?
       Library.assert_success do |status|
         Library.ucal_inDaylightTime(@calendar, status)
@@ -143,8 +153,7 @@ module ICU
     end
 
     def time=(time)
-      time = time.to_time if time.respond_to? :to_time
-      time = time.dup.utc.to_f * 1000 if time.is_a? Time
+      time = coerce_to_milliseconds(time)
 
       Library.assert_success do |status|
         Library.ucal_setMillis(@calendar, time, status)
@@ -173,6 +182,12 @@ module ICU
 
     def automatically_close(calendar_pointer)
       FFI::AutoPointer.new(calendar_pointer, Library.method(:ucal_close))
+    end
+
+    def coerce_to_milliseconds(value)
+      value = value.to_time if value.respond_to? :to_time
+      value = value.dup.utc.to_f * 1000 if value.is_a? Time
+      value
     end
 
     def wchar_buffer_from_string_or_nil(string)

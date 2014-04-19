@@ -197,6 +197,29 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#<=>' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+
+    context 'with a Time' do
+      specify { expect(calendar <=> Time.local(2012, 11, 15, 0, 4, 2)).to eq(-1) }
+      specify { expect(calendar <=> Time.local(2012, 11, 15, 0, 4, 1)).to eq(0) }
+      specify { expect(calendar <=> Time.local(2012, 11, 15, 0, 4, 0)).to eq(1) }
+    end
+
+    context 'with a Calendar' do
+      let(:other) { Calendar.new }
+
+      specify { other.time = Time.local(2012, 11, 15, 0, 4, 2); expect(calendar <=> other).to eq(-1) }
+      specify { other.time = Time.local(2012, 11, 15, 0, 4, 1); expect(calendar <=> other).to eq(0) }
+      specify { other.time = Time.local(2012, 11, 15, 0, 4, 0); expect(calendar <=> other).to eq(1) }
+    end
+
+    it 'is Comparable' do
+      expect(calendar).to be_a Comparable
+    end
+  end
+
   describe '#daylight_time?' do
     subject(:calendar) { Calendar.new('US/Central') }
 
