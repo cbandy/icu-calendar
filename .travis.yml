@@ -1,7 +1,8 @@
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1
+  - ruby-head
 
 matrix:
   include:
@@ -9,10 +10,12 @@ matrix:
       env: ICU_VERSION=4.2.1
     - rvm: 1.9.3
       env: ICU_VERSION=53.1
-    - rvm: 2.1.0
+    - rvm: 2.1
       env: ICU_VERSION=4.2.1
-    - rvm: 2.1.0
+    - rvm: 2.1
       env: ICU_VERSION=53.1
+  allow_failures:
+    - rvm: ruby-head
 
 before_install:
   - test -n "$ICU_VERSION" || sudo apt-get install libicu-dev
