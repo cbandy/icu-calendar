@@ -95,6 +95,14 @@ module ICU
       end
     end
 
+    def add(field, amount)
+      Library.assert_success do |status|
+        Library.ucal_add(@calendar, field, amount, status)
+      end
+
+      self
+    end
+
     def daylight_time?
       Library.assert_success do |status|
         Library.ucal_inDaylightTime(@calendar, status)

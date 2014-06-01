@@ -220,6 +220,36 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#add' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+
+    context 'with a positive value' do
+      it 'moves the time of the calendar forward' do
+        expect(calendar.add(:year, 1)).to eq(Time.local(2013, 11, 15, 0, 4, 1))
+        expect(calendar.add(:month, 2)).to eq(Time.local(2014, 1, 15, 0, 4, 1))
+        expect(calendar.add(:am_pm, 1)).to eq(Time.local(2014, 1, 15, 12, 4, 1))
+      end
+    end
+
+    context 'with a negative value' do
+      it 'moves the time of the calendar backward' do
+        expect(calendar.add(:year, -1)).to eq(Time.local(2011, 11, 15, 0, 4, 1))
+        expect(calendar.add(:day_of_month, -4)).to eq(Time.local(2011, 11, 11, 0, 4, 1))
+        expect(calendar.add(:hour, -2)).to eq(Time.local(2011, 11, 10, 22, 4, 1))
+      end
+    end
+
+    context 'with zero' do
+      it 'does not change the calendar' do
+        [:year, :month, :day_of_month, :hour, :am_pm].each do |field|
+          expect { calendar.add(field, 0) }.to_not change { calendar }
+          expect { calendar.add(field, 0) }.to_not change { calendar.time }
+        end
+      end
+    end
+  end
+
   describe '#daylight_time?' do
     subject(:calendar) { Calendar.new('US/Central') }
 
