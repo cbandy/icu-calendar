@@ -5,18 +5,18 @@ describe ICU::Calendar::Library::ErrorCode do
     expect(subject.to_i).to be(ICU::Calendar::Library::U_ZERO_ERROR)
   end
 
-  describe :buffer_overflow? do
+  describe '#buffer_overflow?' do
     specify { expect(subject.write_int( 0)).to_not be_buffer_overflow }
     specify { expect(subject.write_int(15)).to be_buffer_overflow }
   end
 
-  describe :success? do
+  describe '#success?' do
     specify { expect(subject.write_int( 0)).to be_success }
     specify { expect(subject.write_int(-1)).to be_success }
     specify { expect(subject.write_int(15)).to_not be_success }
   end
 
-  describe :failure? do
+  describe '#failure?' do
     specify { expect(subject.write_int( 0)).to_not be_failure }
     specify { expect(subject.write_int(-1)).to_not be_failure }
     specify { expect(subject.write_int(15)).to be_failure }

@@ -40,7 +40,7 @@ describe ICU::Calendar::Library do
         expect(status).to be_success
       end
 
-      expect(yielded).to be_true
+      expect(yielded).to be true
     end
 
     context 'when the status contains success' do
@@ -71,7 +71,7 @@ describe ICU::Calendar::Library do
         length
       end
 
-      expect(yielded).to be_true
+      expect(yielded).to be true
     end
 
     context 'when the status contains success' do
@@ -112,7 +112,7 @@ describe ICU::Calendar::Library do
           when 2
             expect(buffer).to_not be(original_buffer)
             expect(buffer.size).to be(buffer.type_size * yielded_length)
-            expect(status.success?).to be_true
+            expect(status.success?).to be true
           end
           yielded_length
         end
