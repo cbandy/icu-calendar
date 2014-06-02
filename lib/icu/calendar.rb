@@ -154,6 +154,14 @@ module ICU
       end
     end
 
+    def roll(field, amount)
+      Library.assert_success do |status|
+        Library.ucal_roll(@calendar, field, amount, status)
+      end
+
+      self
+    end
+
     def time
       Library.assert_success do |status|
         Library.ucal_getMillis(@calendar, status)

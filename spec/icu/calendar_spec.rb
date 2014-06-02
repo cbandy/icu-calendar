@@ -381,6 +381,36 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#roll' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+
+    context 'with a positive value' do
+      it 'moves the field forward in time' do
+        expect(calendar.roll(:year, 1)).to eq(Time.local(2013, 11, 15, 0, 4, 1))
+        expect(calendar.roll(:month, 2)).to eq(Time.local(2013, 1, 15, 0, 4, 1))
+        expect(calendar.roll(:am_pm, 1)).to eq(Time.local(2013, 1, 15, 12, 4, 1))
+      end
+    end
+
+    context 'with a negative value' do
+      it 'moves the field backward in time' do
+        expect(calendar.roll(:year, -1)).to eq(Time.local(2011, 11, 15, 0, 4, 1))
+        expect(calendar.roll(:day_of_month, -4)).to eq(Time.local(2011, 11, 11, 0, 4, 1))
+        expect(calendar.roll(:hour, -2)).to eq(Time.local(2011, 11, 11, 10, 4, 1))
+      end
+    end
+
+    context 'with zero' do
+      it 'does not change the calendar' do
+        [:year, :month, :day_of_month, :hour, :am_pm].each do |field|
+          expect { calendar.roll(field, 0) }.to_not change { calendar }
+          expect { calendar.roll(field, 0) }.to_not change { calendar.time }
+        end
+      end
+    end
+  end
+
   describe '#time' do
     subject(:calendar) { Calendar.new }
 
