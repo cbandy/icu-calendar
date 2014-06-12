@@ -178,6 +178,18 @@ module ICU
       self
     end
 
+    def set_date(year, month, day)
+      Library.assert_success do |status|
+        Library.ucal_setDate(@calendar, year, month, day, status)
+      end
+    end
+
+    def set_date_and_time(year, month, day, hour, minute, second)
+      Library.assert_success do |status|
+        Library.ucal_setDateTime(@calendar, year, month, day, hour, minute, second, status)
+      end
+    end
+
     def time
       Library.assert_success do |status|
         Library.ucal_getMillis(@calendar, status)

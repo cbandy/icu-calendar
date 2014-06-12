@@ -469,6 +469,60 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#set_date' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.clear }
+
+    it 'sets the year, month and day fields' do
+      calendar.set_date(2012, :november, 15)
+
+      expect(calendar[:year]).to eq(2012)
+      expect(calendar[:month]).to eq(:november)
+      expect(calendar[:day_of_month]).to eq(15)
+
+      expect(calendar.is_set?(:year)).to be(true)
+      expect(calendar.is_set?(:month)).to be(true)
+      expect(calendar.is_set?(:day_of_month)).to be(true)
+    end
+
+    it 'does not set other fields' do
+      calendar.set_date(2012, :november, 15)
+
+      expect(calendar.is_set?(:hour)).to be(false)
+      expect(calendar.is_set?(:minute)).to be(false)
+      expect(calendar.is_set?(:second)).to be(false)
+    end
+  end
+
+  describe '#set_date_and_time' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.clear }
+
+    it 'sets the year, month, day, hour, minute and second fields' do
+      calendar.set_date_and_time(2012, :november, 15, 0, 4, 1)
+
+      expect(calendar[:year]).to eq(2012)
+      expect(calendar[:month]).to eq(:november)
+      expect(calendar[:day_of_month]).to eq(15)
+      expect(calendar[:hour]).to eq(0)
+      expect(calendar[:minute]).to eq(4)
+      expect(calendar[:second]).to eq(1)
+
+      expect(calendar.is_set?(:year)).to be(true)
+      expect(calendar.is_set?(:month)).to be(true)
+      expect(calendar.is_set?(:day_of_month)).to be(true)
+      expect(calendar.is_set?(:hour)).to be(true)
+      expect(calendar.is_set?(:minute)).to be(true)
+      expect(calendar.is_set?(:second)).to be(true)
+    end
+
+    it 'does not set other fields' do
+      calendar.set_date_and_time(2012, :november, 15, 0, 4, 1)
+
+      expect(calendar.is_set?(:zone_offset)).to be(false)
+    end
+  end
+
   describe '#time' do
     subject(:calendar) { Calendar.new }
 
