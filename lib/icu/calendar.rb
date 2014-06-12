@@ -87,6 +87,10 @@ module ICU
       end
     end
 
+    def []=(field, value)
+      Library.ucal_set(@calendar, field, value)
+    end
+
     def <=>(other)
       if Calendar === other
         time <=> other.time

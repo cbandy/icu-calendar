@@ -197,6 +197,18 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#[]=' do
+    subject(:calendar) { Calendar.new }
+
+    it 'sets the requested field of the assigned time' do
+      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
+
+      calendar[:year] = 2013; expect(calendar).to eq(Time.local(2013, 11, 15, 0, 4, 1))
+      calendar[:month] = :october; expect(calendar).to eq(Time.local(2013, 10, 15, 0, 4, 1))
+      calendar[:hour] = 13; expect(calendar).to eq(Time.local(2013, 10, 15, 13, 4, 1))
+    end
+  end
+
   describe '#<=>' do
     subject(:calendar) { Calendar.new }
     before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
