@@ -199,13 +199,41 @@ describe ICU::Calendar do
 
   describe '#[]=' do
     subject(:calendar) { Calendar.new }
+    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
 
     it 'sets the requested field of the assigned time' do
-      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
+      calendar[:year] = 2013
+      expect(calendar).to eq(Time.local(2013, 11, 15, 0, 4, 1))
 
-      calendar[:year] = 2013; expect(calendar).to eq(Time.local(2013, 11, 15, 0, 4, 1))
-      calendar[:month] = :october; expect(calendar).to eq(Time.local(2013, 10, 15, 0, 4, 1))
-      calendar[:hour] = 13; expect(calendar).to eq(Time.local(2013, 10, 15, 13, 4, 1))
+      calendar[:month] = :october
+      expect(calendar).to eq(Time.local(2013, 10, 15, 0, 4, 1))
+
+      calendar[:hour] = 13
+      expect(calendar).to eq(Time.local(2013, 10, 15, 13, 4, 1))
+    end
+
+    context 'with a zero' do
+      it 'sets the requested field' do
+        calendar[:month] = 0
+        expect(calendar.is_set?(:month)).to be(true)
+        expect(calendar).to eq(Time.local(2012, 1, 15, 0, 4, 1))
+
+        calendar[:minute] = 0
+        expect(calendar.is_set?(:minute)).to be(true)
+        expect(calendar).to eq(Time.local(2012, 1, 15, 0, 0, 1))
+      end
+    end
+
+    context 'with a nil' do
+      it 'clears the field and gives it a value of zero' do
+        calendar[:month] = nil
+        expect(calendar.is_set?(:month)).to be(false)
+        expect(calendar).to eq(Time.local(2012, 1, 15, 0, 4, 1))
+
+        calendar[:minute] = nil
+        expect(calendar.is_set?(:minute)).to be(false)
+        expect(calendar).to eq(Time.local(2012, 1, 15, 0, 0, 1))
+      end
     end
   end
 
@@ -259,6 +287,24 @@ describe ICU::Calendar do
           expect { calendar.add(field, 0) }.to_not change { calendar.time }
         end
       end
+    end
+  end
+
+  describe '#clear' do
+    subject(:calendar) { Calendar.new }
+
+    it 'clears all fields, setting the time to Epoch' do
+      calendar.clear
+
+      %w(
+        era year month week_of_year week_of_month date day_of_year day_of_month day_of_week day_of_week_in_month
+        am_pm hour hour_of_day minute second millisecond zone_offset dst_offset
+        year_woy dow_local julian_day milliseconds_in_day is_leap_month
+      ).each do |field|
+        expect(calendar.is_set?(field.to_sym)).to be(false)
+      end
+
+      expect(calendar).to eq(Time.local(1970, 1, 1, 0, 0, 0))
     end
   end
 

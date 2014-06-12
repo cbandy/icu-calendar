@@ -88,7 +88,11 @@ module ICU
     end
 
     def []=(field, value)
-      Library.ucal_set(@calendar, field, value)
+      if value.nil?
+        Library.ucal_clearField(@calendar, field)
+      else
+        Library.ucal_set(@calendar, field, value)
+      end
     end
 
     def <=>(other)
@@ -105,6 +109,10 @@ module ICU
       end
 
       self
+    end
+
+    def clear
+      Library.ucal_clear(@calendar)
     end
 
     def daylight_time?
@@ -150,6 +158,10 @@ module ICU
       end
 
       @calendar = automatically_close(calendar)
+    end
+
+    def is_set?(field)
+      Library.ucal_isSet(@calendar, field)
     end
 
     def locale(type = :valid)
