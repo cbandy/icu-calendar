@@ -181,7 +181,7 @@ describe ICU::Calendar do
       expect(calendar[:month]).to eq(:november)
       expect(calendar[:day_of_month]).to eq(15)
       expect(calendar[:day_of_week]).to eq(:thursday)
-      expect(calendar[:hour]).to eq(0)
+      expect(calendar[:hour_of_day]).to eq(0)
       expect(calendar[:minute]).to eq(4)
       expect(calendar[:second]).to eq(1)
       expect(calendar[:am_pm]).to eq(:am)
@@ -257,6 +257,30 @@ describe ICU::Calendar do
 
     it 'is Comparable' do
       expect(calendar).to be_a Comparable
+    end
+  end
+
+  describe '#actual_maximum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the maximum possible value for a field based on the time' do
+      calendar.time = Time.local(2012, 2, 1)
+      expect(calendar.actual_maximum(:day_of_month)).to eq(29)
+      expect(calendar.actual_maximum(:month)).to eq(:december)
+
+      calendar.time = Time.local(2013, 2, 1)
+      expect(calendar.actual_maximum(:day_of_month)).to eq(28)
+      expect(calendar.actual_maximum(:month)).to eq(:december)
+    end
+  end
+
+  describe '#actual_minimum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the minimum possible value for a field based on the time' do
+      calendar.time = Time.local(2012, 2, 1)
+      expect(calendar.actual_minimum(:day_of_month)).to eq(1)
+      expect(calendar.actual_minimum(:month)).to eq(:january)
     end
   end
 
@@ -417,6 +441,30 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#greatest_minimum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the greatest minimum value for a field (if the minimum varies)' do
+      expect(calendar.greatest_minimum(:month)).to eq(:january)
+      expect(calendar.greatest_minimum(:hour_of_day)).to eq(0)
+      expect(calendar.greatest_minimum(:day_of_month)).to eq(1)
+      expect(calendar.greatest_minimum(:week_of_month)).to eq(1)
+      expect(calendar.greatest_minimum(:week_of_year)).to eq(1)
+    end
+  end
+
+  describe '#least_maximum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the least maximum value for a field (if the maximum varies)' do
+      expect(calendar.least_maximum(:month)).to eq(:december)
+      expect(calendar.least_maximum(:hour_of_day)).to eq(23)
+      expect(calendar.least_maximum(:day_of_month)).to eq(28)
+      expect(calendar.least_maximum(:week_of_month)).to eq(4)
+      expect(calendar.least_maximum(:week_of_year)).to eq(52)
+    end
+  end
+
   describe '#locale' do
     it 'returns the locale' do
       expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')
@@ -436,6 +484,30 @@ describe ICU::Calendar do
         expect(Calendar.new(nil, 'en_US').locale(:actual)).to eq('en_US')
         expect(Calendar.new(nil, 'zh_TW').locale(:actual)).to eq('zh_Hant_TW')
       end
+    end
+  end
+
+  describe '#maximum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the maximum possible value for a field' do
+      expect(calendar.maximum(:month)).to eq(:december)
+      expect(calendar.maximum(:hour_of_day)).to eq(23)
+      expect(calendar.maximum(:day_of_month)).to eq(31)
+      expect(calendar.maximum(:week_of_month)).to eq(6)
+      expect(calendar.maximum(:week_of_year)).to eq(53)
+    end
+  end
+
+  describe '#minimum' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns the minimum possible value for a field' do
+      expect(calendar.minimum(:month)).to eq(:january)
+      expect(calendar.minimum(:hour_of_day)).to eq(0)
+      expect(calendar.minimum(:day_of_month)).to eq(1)
+      expect(calendar.minimum(:week_of_month)).to eq(1)
+      expect(calendar.minimum(:week_of_year)).to eq(1)
     end
   end
 

@@ -75,16 +75,9 @@ module ICU
     end
 
     def [](field)
-      result = Library.assert_success do |status|
+      field_value_to_symbol(field, Library.assert_success do |status|
         Library.ucal_get(@calendar, field, status)
-      end
-
-      case field
-      when :am_pm, :day_of_week, :month
-        Library.enum_type(field)[result]
-      else
-        result
-      end
+      end)
     end
 
     def []=(field, value)
@@ -101,6 +94,18 @@ module ICU
       else
         time <=> coerce_to_milliseconds(other)
       end
+    end
+
+    def actual_maximum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :actual_maximum, status)
+      end)
+    end
+
+    def actual_minimum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :actual_minimum, status)
+      end)
     end
 
     def add(field, amount)
@@ -150,6 +155,12 @@ module ICU
       Library.ucal_setAttribute(@calendar, :first_day_of_week, day_of_week)
     end
 
+    def greatest_minimum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :greatest_minimum, status)
+      end)
+    end
+
     def initialize(timezone = nil, locale = nil)
       calendar = wchar_buffer_from_string_or_nil(timezone) do |timezone|
         Library.assert_success do |status|
@@ -164,10 +175,28 @@ module ICU
       Library.ucal_isSet(@calendar, field)
     end
 
+    def least_maximum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :least_maximum, status)
+      end)
+    end
+
     def locale(type = :valid)
       Library.assert_success do |status|
         Library.ucal_getLocaleByType(@calendar, type, status)
       end
+    end
+
+    def maximum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :maximum, status)
+      end)
+    end
+
+    def minimum(field)
+      field_value_to_symbol(field, Library.assert_success do |status|
+        Library.ucal_getLimit(@calendar, field, :minimum, status)
+      end)
     end
 
     def roll(field, amount)
@@ -232,6 +261,15 @@ module ICU
       value = value.to_time if value.respond_to? :to_time
       value = value.dup.utc.to_f * 1000 if value.is_a? Time
       value
+    end
+
+    def field_value_to_symbol(field, value)
+      case field
+      when :am_pm, :day_of_week, :month
+        Library.enum_type(field)[value]
+      else
+        value
+      end
     end
 
     def wchar_buffer_from_string_or_nil(string)
