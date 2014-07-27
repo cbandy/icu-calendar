@@ -494,7 +494,6 @@ describe ICU::Calendar do
       expect(calendar.maximum(:month)).to eq(:december)
       expect(calendar.maximum(:hour_of_day)).to eq(23)
       expect(calendar.maximum(:day_of_month)).to eq(31)
-      expect(calendar.maximum(:week_of_month)).to eq(6)
       expect(calendar.maximum(:week_of_year)).to eq(53)
     end
   end
@@ -506,7 +505,6 @@ describe ICU::Calendar do
       expect(calendar.minimum(:month)).to eq(:january)
       expect(calendar.minimum(:hour_of_day)).to eq(0)
       expect(calendar.minimum(:day_of_month)).to eq(1)
-      expect(calendar.minimum(:week_of_month)).to eq(1)
       expect(calendar.minimum(:week_of_year)).to eq(1)
     end
   end
