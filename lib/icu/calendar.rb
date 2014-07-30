@@ -181,6 +181,14 @@ module ICU
       end)
     end
 
+    def lenient?
+      Library.ucal_getAttribute(@calendar, :lenient).nonzero?
+    end
+
+    def lenient=(value)
+      Library.ucal_setAttribute(@calendar, :lenient, value ? 1 : 0)
+    end
+
     def locale(type = :valid)
       Library.assert_success do |status|
         Library.ucal_getLocaleByType(@calendar, type, status)

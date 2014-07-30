@@ -465,6 +465,53 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#lenient?' do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns whether or not date/time interpretation is lenient' do
+      calendar.lenient = false
+      expect(calendar).to_not be_lenient
+
+      calendar.lenient = true
+      expect(calendar).to be_lenient
+    end
+
+    it 'defaults to lenient' do
+      expect(calendar).to be_lenient
+    end
+  end
+
+  describe '#lenient=' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.clear }
+
+    context 'when true' do
+      before { calendar.lenient = true }
+
+      it 'interprets field values in a fuzzy way' do
+        calendar.set_date(1996, :february, 942)
+        expect(calendar[:year]).to eq(1998)
+        expect(calendar[:month]).to eq(:august)
+        expect(calendar[:day_of_month]).to eq(30)
+        expect(calendar).to eq(Time.local(1998, 8, 30))
+      end
+    end
+
+    context 'when false' do
+      before { calendar.lenient = false }
+
+      it 'raises an error when interpreting large field values' do
+        calendar.set_date(1996, :february, 942)
+
+        %w(year month day_of_month).each do |field|
+          expect { calendar[field.to_sym] }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+        end
+
+        expect { calendar.time }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+      end
+    end
+  end
+
   describe '#locale' do
     it 'returns the locale' do
       expect(Calendar.new(nil, 'en_US').locale).to eq('en_US')
