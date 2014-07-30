@@ -255,6 +255,12 @@ module ICU
       end
     end
 
+    def type
+      Library.assert_success do |status|
+        Library.ucal_getType(@calendar, status)
+      end.to_sym
+    end
+
     protected
 
     attr_accessor :calendar

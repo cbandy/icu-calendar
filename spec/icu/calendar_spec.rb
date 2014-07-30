@@ -700,4 +700,19 @@ describe ICU::Calendar do
       end
     end
   end
+
+  describe '#type' do
+    it 'returns the Unicode calendar type' do
+      expect(Calendar.new(nil, 'en_US').type).to eq(:gregorian)
+      expect(Calendar.new(nil, 'th_TH').type).to eq(:buddhist)
+      expect(Calendar.new(nil, '@calendar=chinese').type).to eq(:chinese)
+    end
+
+    context 'when the type is invalid' do
+      it 'returns the locale default' do
+        expect(Calendar.new(nil, 'en_US@calendar=wat').type).to eq(:gregorian)
+        expect(Calendar.new(nil, 'th_TH@calendar=wat').type).to eq(:buddhist)
+      end
+    end
+  end
 end

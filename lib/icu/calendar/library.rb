@@ -136,6 +136,7 @@ module ICU
       attach_icu_function :ucal_getLocaleByType,        :string, [:calendar, :locale_type, :status]
       attach_icu_function :ucal_getMillis,              :date,   [:calendar, :status]
       attach_icu_function :ucal_getTimeZoneDisplayName, :int32,  [:calendar, :display_name_type, :string, :buffer_out, :int32, :status]
+      attach_icu_function :ucal_getType,                :string, [:calendar, :status]
       attach_icu_function :ucal_inDaylightTime,         :bool,   [:calendar, :status]
       attach_icu_function :ucal_setAttribute,           :void,   [:calendar, :attribute, :int32]
       attach_icu_function :ucal_setDate,                :void,   [:calendar, :int32, :month, :int32, :status]
