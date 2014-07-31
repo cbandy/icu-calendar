@@ -122,6 +122,13 @@ module ICU
       end
     end
 
+    def difference(from, field)
+      from = coerce_to_milliseconds(from)
+      Library.assert_success do |status|
+        Library.ucal_getFieldDifference(@calendar, from, field, status)
+      end
+    end
+
     def dup
       calendar = automatically_close(
         Library.assert_success do |status|

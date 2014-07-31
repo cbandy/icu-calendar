@@ -346,6 +346,38 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#difference', if: icu_version_at_least('4.8') do
+    let(:young) { Calendar.new }
+    let(:old) { Calendar.new }
+
+    before do
+      old.time = Time.local(2010, 5, 8, 6, 30, 0)
+      young.time = Time.local(2012, 11, 15, 0, 4, 1)
+    end
+
+    example_group 'it returns the difference between two times' do
+      describe 'when the callee is before the argument, the result is positive' do
+        specify { expect(old.difference(young, :year)).to eq(2) }
+        specify { expect(old.difference(young, :month)).to eq(30) }
+        specify { expect(old.difference(young, :day_of_month)).to eq(921) }
+        specify { expect(old.difference(young, :day_of_year)).to eq(921) }
+      end
+
+      describe 'when the callee is after the argument, the result is negative' do
+        specify { expect(young.difference(old, :year)).to eq(-2) }
+        specify { expect(young.difference(old, :month)).to eq(-30) }
+        specify { expect(young.difference(old, :day_of_month)).to eq(-921) }
+        specify { expect(young.difference(old, :day_of_year)).to eq(-921) }
+      end
+    end
+
+    it 'changes the time of the callee by the returned amount' do
+      expect { old.difference(young, :year) }.to change { old[:year] }.by(2)
+      expect { old.difference(young, :month) }.to change { old[:month] }.from(:may).to(:november)
+      expect { old.difference(young, :day_of_month) }.to change { old[:day_of_month] }.by(6)
+    end
+  end
+
   describe '#dup' do
     let(:original) { Calendar.new }
     subject(:copy) { original.dup }
