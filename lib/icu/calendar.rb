@@ -264,6 +264,24 @@ module ICU
       end.to_sym
     end
 
+    def weekday_type(day_of_week)
+      Library.assert_success do |status|
+        Library.ucal_getDayOfWeekType(@calendar, day_of_week, status)
+      end
+    end
+
+    def weekend?
+      Library.assert_success do |status|
+        Library.ucal_isWeekend(@calendar, time, status)
+      end
+    end
+
+    def weekend_transition(day_of_week)
+      Library.assert_success do |status|
+        Library.ucal_getWeekendTransition(@calendar, day_of_week, status)
+      end
+    end
+
     protected
 
     attr_accessor :calendar

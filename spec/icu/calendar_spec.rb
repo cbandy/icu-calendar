@@ -756,4 +756,61 @@ describe ICU::Calendar do
       end
     end
   end
+
+  describe '#weekday_type', if: icu_version_at_least('4.4') do
+    let(:en_US) { Calendar.new(nil, 'en_US') }
+    let(:hi_IN) { Calendar.new(nil, 'hi_IN') }
+
+    it 'returns the type of the day of the week' do
+      expect(en_US.weekday_type(:friday)).to eq(:weekday)
+      expect(en_US.weekday_type(:saturday)).to eq(:weekend)
+    end
+
+    # http://bugs.icu-project.org/trac/ticket/10061
+    it 'is useless until version 52' do
+      if icu_version_at_least('52')
+        expect(en_US.weekday_type(:sunday)).to eq(:weekend)
+      else
+        expect(en_US.weekday_type(:sunday)).to eq(:weekend_cease)
+      end
+
+      if icu_version_at_least('52')
+        expect(hi_IN.weekday_type(:saturday)).to eq(:weekday)
+        expect(hi_IN.weekday_type(:sunday)).to eq(:weekend)
+        expect(hi_IN.weekday_type(:monday)).to eq(:weekday)
+      else
+        expect(hi_IN.weekday_type(:saturday)).to eq(:weekend)
+        expect(hi_IN.weekday_type(:sunday)).to eq(:weekend)
+        expect(hi_IN.weekday_type(:monday)).to eq(:weekend)
+      end
+    end
+  end
+
+  describe '#weekend?', if: icu_version_at_least('4.4') do
+    let(:calendar) { Calendar.new(nil, 'en_US') }
+    before { calendar.time = Time.utc(2014, 8, 2) }
+
+    it 'returns true when the time is during the weekend' do
+      calendar[:day_of_week] = :sunday
+      expect(calendar).to be_weekend
+
+      calendar[:day_of_week] = :monday
+      expect(calendar).to_not be_weekend
+    end
+  end
+
+  describe '#weekend_transition', if: icu_version_at_least('4.4') do
+    let(:calendar) { Calendar.new(nil, 'en_US') }
+
+    it 'returns the time of day (in milliseconds) at which the weekend begins or ends' do
+      expect(calendar.weekend_transition(:saturday)).to eq(0)
+      expect(calendar.weekend_transition(:sunday)).to eq(24 * 60 * 60 * 1000)
+    end
+
+    it 'raises a RuntimeError when the day is invalid' do
+      %w(monday wednesday friday).each do |day|
+        expect { calendar.weekend_transition(day.to_sym) }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+      end
+    end
+  end
 end

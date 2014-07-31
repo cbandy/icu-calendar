@@ -329,4 +329,13 @@ describe ICU::Calendar::Library do
       it_behaves_like 'an enumeration', :system_timezone_type, {}
     end
   end
+
+  describe 'Weekday Type' do
+    if compiled_with_icu_version_at_least('4.4')
+      it_behaves_like 'an enumeration', :weekday_type,
+        weekday: 0, weekend: 1, weekend_onset: 2, weekend_cease: 3
+    else
+      it_behaves_like 'an enumeration', :weekday_type, {}
+    end
+  end
 end

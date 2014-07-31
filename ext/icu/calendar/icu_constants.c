@@ -154,6 +154,19 @@ icu_calendar_system_timezone_type_enum(VALUE module)
 	return result;
 }
 
+static VALUE
+icu_calendar_weekday_type_enum(VALUE module)
+{
+	VALUE result = rb_ary_new2(4);
+#if U_ICU_VERSION_MAJOR_NUM > 4 || (U_ICU_VERSION_MAJOR_NUM == 4 && U_ICU_VERSION_MINOR_NUM >= 4)
+	push_enum(result, "weekday",       UCAL_WEEKDAY);
+	push_enum(result, "weekend",       UCAL_WEEKEND);
+	push_enum(result, "weekend_onset", UCAL_WEEKEND_ONSET);
+	push_enum(result, "weekend_cease", UCAL_WEEKEND_CEASE);
+#endif
+	return result;
+}
+
 void Init_icu_constants()
 {
 	VALUE rb_mICU, rb_cICUCalendar, rb_mICUCalendarLibrary;
@@ -180,4 +193,5 @@ void Init_icu_constants()
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "locale_type_enum", icu_calendar_locale_type_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "month_enum", icu_calendar_month_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "system_timezone_type_enum", icu_calendar_system_timezone_type_enum, 0);
+	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "weekday_type_enum", icu_calendar_weekday_type_enum, 0);
 }
