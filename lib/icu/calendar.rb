@@ -89,11 +89,7 @@ module ICU
     end
 
     def <=>(other)
-      if Calendar === other
-        time <=> other.time
-      else
-        time <=> coerce_to_milliseconds(other)
-      end
+      time <=> coerce_to_milliseconds(other)
     end
 
     def actual_maximum(field)
@@ -272,9 +268,13 @@ module ICU
     end
 
     def coerce_to_milliseconds(value)
-      value = value.to_time if value.respond_to? :to_time
-      value = value.dup.utc.to_f * 1000 if value.is_a? Time
-      value
+      if Calendar === value
+        value.time
+      else
+        value = value.to_time if value.respond_to? :to_time
+        value = value.getutc.to_f * 1000 if value.is_a? Time
+        value
+      end
     end
 
     def field_value_to_symbol(field, value)

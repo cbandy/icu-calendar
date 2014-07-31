@@ -675,6 +675,15 @@ describe ICU::Calendar do
         expect(calendar.time).to eq(integer)
         expect(calendar.time).to be_a Float
       end
+
+      it 'can be assigned with a Calendar' do
+        other = Calendar.new
+        other.time = integer
+
+        expect(calendar.time = other).to be(other)
+        expect(calendar.time).to eq(integer)
+        expect(calendar.time).to be_a Float
+      end
     end
   end
 
