@@ -577,6 +577,19 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#minimal_days_in_first_week' do
+    subject(:calendar) { Calendar.new }
+    before { calendar.time = Time.local(2014, 1, 1) }
+
+    it 'is the minimum number of days needed to indicate the first "week"' do
+      expect(calendar.minimal_days_in_first_week = 1).to eq(1)
+      expect(calendar[:week_of_year]).to eq(1)
+
+      expect(calendar.minimal_days_in_first_week = 7).to eq(7)
+      expect(calendar[:week_of_year]).to eq(52)
+    end
+  end
+
   describe '#minimum' do
     subject(:calendar) { Calendar.new }
 

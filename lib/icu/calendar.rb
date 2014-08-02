@@ -204,6 +204,14 @@ module ICU
       end)
     end
 
+    def minimal_days_in_first_week
+      Library.ucal_getAttribute(@calendar, :minimal_days_in_first_week)
+    end
+
+    def minimal_days_in_first_week=(value)
+      Library.ucal_setAttribute(@calendar, :minimal_days_in_first_week, value)
+    end
+
     def minimum(field)
       field_value_to_symbol(field, Library.assert_success do |status|
         Library.ucal_getLimit(@calendar, field, :minimum, status)
