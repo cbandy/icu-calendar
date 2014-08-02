@@ -155,6 +155,19 @@ icu_calendar_system_timezone_type_enum(VALUE module)
 }
 
 static VALUE
+icu_calendar_timezone_transition_type_enum(VALUE module)
+{
+	VALUE result = rb_ary_new2(4);
+#if U_ICU_VERSION_MAJOR_NUM >= 50
+	push_enum(result, "next",               UCAL_TZ_TRANSITION_NEXT);
+	push_enum(result, "next_inclusive",     UCAL_TZ_TRANSITION_NEXT_INCLUSIVE);
+	push_enum(result, "previous",           UCAL_TZ_TRANSITION_PREVIOUS);
+	push_enum(result, "previous_inclusive", UCAL_TZ_TRANSITION_PREVIOUS_INCLUSIVE);
+#endif
+	return result;
+}
+
+static VALUE
 icu_calendar_walltime_option_enum(VALUE module)
 {
 	VALUE result = rb_ary_new2(3);
@@ -205,6 +218,7 @@ void Init_icu_constants()
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "locale_type_enum", icu_calendar_locale_type_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "month_enum", icu_calendar_month_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "system_timezone_type_enum", icu_calendar_system_timezone_type_enum, 0);
+	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "timezone_transition_type_enum", icu_calendar_timezone_transition_type_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "walltime_option_enum", icu_calendar_walltime_option_enum, 0);
 	rb_define_private_method(rb_singleton_class(rb_mICUCalendarLibrary), "weekday_type_enum", icu_calendar_weekday_type_enum, 0);
 }

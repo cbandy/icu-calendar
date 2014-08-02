@@ -330,10 +330,21 @@ describe ICU::Calendar::Library do
     end
   end
 
+  describe 'Time Zone Transition Type' do
+    if compiled_with_icu_version_at_least('50')
+      it_behaves_like 'an enumeration', :timezone_transition_type,
+        next: 0, next_inclusive: 1, previous: 2, previous_inclusive: 3
+    else
+      it_behaves_like 'an enumeration', :timezone_transition_type, {}
+    end
+  end
+
   describe 'Wall Time Option' do
     if compiled_with_icu_version_at_least('49')
       it_behaves_like 'an enumeration', :walltime_option,
         last: 0, first: 1, next_valid: 2
+    else
+      it_behaves_like 'an enumeration', :walltime_option, {}
     end
   end
 

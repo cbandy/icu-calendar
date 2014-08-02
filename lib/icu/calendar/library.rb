@@ -92,7 +92,7 @@ module ICU
       enum :locale_type,              locale_type_enum
       enum :month,                    month_enum
       enum :system_timezone_type,     system_timezone_type_enum
-      enum :timezone_transition_type, [] #timezone_transition_type_enum
+      enum :timezone_transition_type, timezone_transition_type_enum
       enum :walltime_option,          walltime_option_enum
       enum :weekday_type,             weekday_type_enum
 

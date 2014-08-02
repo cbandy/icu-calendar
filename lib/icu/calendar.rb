@@ -218,6 +218,14 @@ module ICU
       end)
     end
 
+    def next_timezone_transition(inclusive = false)
+      timezone_transition(inclusive ? :next_inclusive : :next)
+    end
+
+    def previous_timezone_transition(inclusive = false)
+      timezone_transition(inclusive ? :previous_inclusive : :previous)
+    end
+
     def repeated_wall_time
       Library.enum_type(:walltime_option)[Library.ucal_getAttribute(@calendar, :repeated_wall_time)]
     end
@@ -334,6 +342,16 @@ module ICU
         Library.enum_type(field)[value]
       else
         value
+      end
+    end
+
+    def timezone_transition(type)
+      FFI::MemoryPointer.new(:double) do |time|
+        valid = Library.assert_success do |status|
+          Library.ucal_getTimeZoneTransitionDate(@calendar, type, time, status)
+        end
+
+        return valid ? time.read_double : nil
       end
     end
 

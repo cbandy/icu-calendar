@@ -601,6 +601,89 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#next_timezone_transition', if: icu_version_at_least('50') do
+    let(:calendar) { Calendar.new('US/Central') }
+    let(:solstice) { Time.utc(2013, 6, 21, 5, 4) }
+    let(:transition) { Time.utc(2013, 11, 3, 7) }
+
+    it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the next transition' do
+      calendar.time = solstice
+      expect(calendar.next_timezone_transition).to eq(transition.to_f * 1000)
+      expect(calendar.next_timezone_transition).to be_a Float
+    end
+
+    context 'when exclusive' do
+      it 'does not return the current time' do
+        calendar.time = transition
+        expect(calendar.next_timezone_transition(false)).to_not eq(transition.to_f * 1000)
+      end
+    end
+
+    context 'when inclusive' do
+      it 'may return the current time' do
+        calendar.time = transition
+        expect(calendar.next_timezone_transition(true)).to eq(transition.to_f * 1000)
+      end
+    end
+
+    it 'defaults to exclusive' do
+      calendar.time = transition
+      expect(calendar.next_timezone_transition).to_not eq(transition.to_f * 1000)
+    end
+
+    context 'with a zone that does not transition' do
+      let(:calendar) { Calendar.new('Asia/Kathmandu') }
+
+      it 'returns nil' do
+        expect(calendar.next_timezone_transition).to be nil
+        expect(calendar.next_timezone_transition(false)).to be nil
+        expect(calendar.next_timezone_transition(true)).to be nil
+      end
+    end
+  end
+
+  describe '#previous_timezone_transition', if: icu_version_at_least('50') do
+    let(:calendar) { Calendar.new('US/Central') }
+    let(:solstice) { Time.utc(2013, 12, 21, 23, 3) }
+    let(:transition) { Time.utc(2013, 11, 3, 7) }
+
+    it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the previous transition' do
+      calendar.time = solstice
+      expect(calendar.previous_timezone_transition).to eq(transition.to_f * 1000)
+      expect(calendar.previous_timezone_transition).to be_a Float
+    end
+
+    context 'when exclusive' do
+      it 'does not return the current time' do
+        calendar.time = transition
+        expect(calendar.previous_timezone_transition(false)).to_not eq(transition.to_f * 1000)
+      end
+    end
+
+    context 'when inclusive' do
+      it 'may return the current time' do
+        calendar.time = transition
+        expect(calendar.previous_timezone_transition(true)).to eq(transition.to_f * 1000)
+      end
+    end
+
+    it 'defaults to exclusive' do
+      calendar.time = transition
+      expect(calendar.previous_timezone_transition).to_not eq(transition.to_f * 1000)
+    end
+
+    context 'with a zone that does not transition' do
+      let(:calendar) { Calendar.new('Asia/Kathmandu') }
+
+      it 'returns nil' do
+        calendar.time = Time.utc(1900, 1, 1)
+        expect(calendar.previous_timezone_transition).to be nil
+        expect(calendar.previous_timezone_transition(false)).to be nil
+        expect(calendar.previous_timezone_transition(true)).to be nil
+      end
+    end
+  end
+
   describe '#repeated_wall_time', if: icu_version_at_least('49') do
     subject(:calendar) { Calendar.new }
 
