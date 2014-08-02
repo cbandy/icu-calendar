@@ -588,6 +588,24 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#repeated_wall_time', if: icu_version_at_least('49') do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns a Wall Time Option' do
+      expect(calendar.repeated_wall_time).to eq(:last)
+    end
+
+    it 'can be assigned using a Wall Time Option' do
+      expect(calendar.repeated_wall_time = :first).to eq(:first)
+      expect(calendar.repeated_wall_time).to eq(:first)
+    end
+
+    it 'can be assigned using an Integer' do
+      expect(calendar.repeated_wall_time = 1).to eq(1)
+      expect(calendar.repeated_wall_time).to eq(:first)
+    end
+  end
+
   describe '#roll' do
     subject(:calendar) { Calendar.new }
     before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
@@ -669,6 +687,24 @@ describe ICU::Calendar do
       calendar.set_date_and_time(2012, :november, 15, 0, 4, 1)
 
       expect(calendar.is_set?(:zone_offset)).to be(false)
+    end
+  end
+
+  describe '#skipped_wall_time', if: icu_version_at_least('49') do
+    subject(:calendar) { Calendar.new }
+
+    it 'returns a Wall Time Option' do
+      expect(calendar.skipped_wall_time).to eq(:last)
+    end
+
+    it 'can be assigned using a Wall Time Option' do
+      expect(calendar.skipped_wall_time = :first).to eq(:first)
+      expect(calendar.skipped_wall_time).to eq(:first)
+    end
+
+    it 'can be assigned using an Integer' do
+      expect(calendar.skipped_wall_time = 1).to eq(1)
+      expect(calendar.skipped_wall_time).to eq(:first)
     end
   end
 

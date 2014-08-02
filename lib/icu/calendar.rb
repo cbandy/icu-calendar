@@ -210,6 +210,15 @@ module ICU
       end)
     end
 
+    def repeated_wall_time
+      Library.enum_type(:walltime_option)[Library.ucal_getAttribute(@calendar, :repeated_wall_time)]
+    end
+
+    def repeated_wall_time=(option)
+      option = Library.enum_type(:walltime_option)[option] if Symbol === option
+      Library.ucal_setAttribute(@calendar, :repeated_wall_time, option)
+    end
+
     def roll(field, amount)
       Library.assert_success do |status|
         Library.ucal_roll(@calendar, field, amount, status)
@@ -228,6 +237,15 @@ module ICU
       Library.assert_success do |status|
         Library.ucal_setDateTime(@calendar, year, month, day, hour, minute, second, status)
       end
+    end
+
+    def skipped_wall_time
+      Library.enum_type(:walltime_option)[Library.ucal_getAttribute(@calendar, :skipped_wall_time)]
+    end
+
+    def skipped_wall_time=(option)
+      option = Library.enum_type(:walltime_option)[option] if Symbol === option
+      Library.ucal_setAttribute(@calendar, :skipped_wall_time, option)
     end
 
     def time

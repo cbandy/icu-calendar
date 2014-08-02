@@ -330,6 +330,13 @@ describe ICU::Calendar::Library do
     end
   end
 
+  describe 'Wall Time Option' do
+    if compiled_with_icu_version_at_least('49')
+      it_behaves_like 'an enumeration', :walltime_option,
+        last: 0, first: 1, next_valid: 2
+    end
+  end
+
   describe 'Weekday Type' do
     if compiled_with_icu_version_at_least('4.4')
       it_behaves_like 'an enumeration', :weekday_type,
