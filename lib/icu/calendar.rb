@@ -172,6 +172,7 @@ module ICU
       end
 
       @calendar = automatically_close(calendar)
+      self.time = options[:time] if options[:time]
     end
 
     def is_set?(field)

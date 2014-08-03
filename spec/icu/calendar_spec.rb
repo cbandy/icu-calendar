@@ -172,11 +172,9 @@ describe ICU::Calendar do
   end
 
   describe '#[]' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     it 'gets the requested field of the assigned time' do
-      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
-
       expect(calendar[:year]).to eq(2012)
       expect(calendar[:month]).to eq(:november)
       expect(calendar[:day_of_month]).to eq(15)
@@ -189,7 +187,6 @@ describe ICU::Calendar do
 
     it 'returns raw values when called with an Integer' do
       date_field_enum = Calendar::Library.enum_type(:date_field)
-      calendar.time = Time.local(2012, 11, 15, 0, 4, 1)
 
       expect(calendar[date_field_enum[:month]]).to eq(10)
       expect(calendar[date_field_enum[:day_of_week]]).to eq(5)
@@ -198,8 +195,7 @@ describe ICU::Calendar do
   end
 
   describe '#[]=' do
-    subject(:calendar) { Calendar.new }
-    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     it 'sets the requested field of the assigned time' do
       calendar[:year] = 2013
@@ -238,8 +234,7 @@ describe ICU::Calendar do
   end
 
   describe '#<=>' do
-    subject(:calendar) { Calendar.new }
-    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a Time' do
       specify { expect(calendar <=> Time.local(2012, 11, 15, 0, 4, 2)).to eq(-1) }
@@ -285,8 +280,7 @@ describe ICU::Calendar do
   end
 
   describe '#add' do
-    subject(:calendar) { Calendar.new }
-    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a positive value' do
       it 'moves the time of the calendar forward' do
@@ -347,13 +341,8 @@ describe ICU::Calendar do
   end
 
   describe '#difference', if: icu_version_at_least('4.8') do
-    let(:young) { Calendar.new }
-    let(:old) { Calendar.new }
-
-    before do
-      old.time = Time.local(2010, 5, 8, 6, 30, 0)
-      young.time = Time.local(2012, 11, 15, 0, 4, 1)
-    end
+    let(:young) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    let(:old)   { Calendar.new(time: Time.local(2010, 5, 8, 6, 30, 0)) }
 
     example_group 'it returns the difference between two times' do
       describe 'when the callee is before the argument, the result is positive' do
@@ -578,8 +567,7 @@ describe ICU::Calendar do
   end
 
   describe '#minimal_days_in_first_week' do
-    subject(:calendar) { Calendar.new }
-    before { calendar.time = Time.local(2014, 1, 1) }
+    subject(:calendar) { Calendar.new(time: Time.local(2014, 1, 1)) }
 
     it 'is the minimum number of days needed to indicate the first "week"' do
       expect(calendar.minimal_days_in_first_week = 1).to eq(1)
@@ -602,12 +590,11 @@ describe ICU::Calendar do
   end
 
   describe '#next_timezone_transition', if: icu_version_at_least('50') do
-    let(:calendar) { Calendar.new(timezone: 'US/Central') }
-    let(:solstice) { Time.utc(2013, 6, 21, 5, 4) }
+    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
     let(:transition) { Time.utc(2013, 11, 3, 7) }
 
     it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the next transition' do
-      calendar.time = solstice
+      calendar.time = Time.utc(2013, 6, 21, 5, 4)
       expect(calendar.next_timezone_transition).to eq(transition.to_f * 1000)
       expect(calendar.next_timezone_transition).to be_a Float
     end
@@ -632,7 +619,7 @@ describe ICU::Calendar do
     end
 
     context 'with a zone that does not transition' do
-      let(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
+      subject(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
 
       it 'returns nil' do
         expect(calendar.next_timezone_transition).to be nil
@@ -643,12 +630,11 @@ describe ICU::Calendar do
   end
 
   describe '#previous_timezone_transition', if: icu_version_at_least('50') do
-    let(:calendar) { Calendar.new(timezone: 'US/Central') }
-    let(:solstice) { Time.utc(2013, 12, 21, 23, 3) }
+    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
     let(:transition) { Time.utc(2013, 11, 3, 7) }
 
     it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the previous transition' do
-      calendar.time = solstice
+      calendar.time = Time.utc(2013, 12, 21, 23, 3)
       expect(calendar.previous_timezone_transition).to eq(transition.to_f * 1000)
       expect(calendar.previous_timezone_transition).to be_a Float
     end
@@ -673,7 +659,7 @@ describe ICU::Calendar do
     end
 
     context 'with a zone that does not transition' do
-      let(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
+      subject(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
 
       it 'returns nil' do
         calendar.time = Time.utc(1900, 1, 1)
@@ -703,8 +689,7 @@ describe ICU::Calendar do
   end
 
   describe '#roll' do
-    subject(:calendar) { Calendar.new }
-    before { calendar.time = Time.local(2012, 11, 15, 0, 4, 1) }
+    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a positive value' do
       it 'moves the field forward in time' do
@@ -841,8 +826,7 @@ describe ICU::Calendar do
       end
 
       it 'can be assigned with a Calendar' do
-        other = Calendar.new
-        other.time = integer
+        other = Calendar.new(time: integer)
 
         expect(calendar.time = other).to be(other)
         expect(calendar.time).to eq(integer)
@@ -919,8 +903,7 @@ describe ICU::Calendar do
   end
 
   describe '#weekend?', if: icu_version_at_least('4.4') do
-    let(:calendar) { Calendar.new(locale: 'en_US') }
-    before { calendar.time = Time.utc(2014, 8, 2) }
+    subject(:calendar) { Calendar.new(locale: 'en_US', time: Time.utc(2014, 8, 2)) }
 
     it 'returns true when the time is during the weekend' do
       calendar[:day_of_week] = :sunday
