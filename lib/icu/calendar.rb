@@ -164,10 +164,10 @@ module ICU
       end)
     end
 
-    def initialize(timezone = nil, locale = nil)
-      calendar = wchar_buffer_from_string_or_nil(timezone) do |timezone|
+    def initialize(options = {})
+      calendar = wchar_buffer_from_string_or_nil(options[:timezone]) do |timezone|
         Library.assert_success do |status|
-          Library.ucal_open(timezone, -1, locale, :default, status)
+          Library.ucal_open(timezone, -1, options[:locale], :default, status)
         end
       end
 
