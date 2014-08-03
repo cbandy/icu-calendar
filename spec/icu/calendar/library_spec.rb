@@ -112,7 +112,7 @@ describe ICU::Calendar::Library do
           when 2
             expect(buffer).to_not be(original_buffer)
             expect(buffer.size).to be(buffer.type_size * yielded_length)
-            expect(status.success?).to be true
+            expect(status).to be_success
           end
           yielded_length
         end
@@ -242,7 +242,7 @@ describe ICU::Calendar::Library do
 
         it 'closes the enumeration' do
           expect(Library).to receive(:uenum_close).with(enumeration)
-          Library.read_wchar_enumeration(opener) {} rescue ICU::Calendar::RuntimeError
+          Library.read_wchar_enumeration(opener) {} rescue nil
         end
       end
 

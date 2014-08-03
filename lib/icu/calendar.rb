@@ -6,7 +6,7 @@ module ICU
 
     class << self
       def available_locales
-        (0...Library.ucal_countAvailable).map { |i| Library.ucal_getAvailable(i) }
+        (0...Library.ucal_countAvailable).map(&Library.method(:ucal_getAvailable))
       end
 
       def canonical_timezone_identifier(timezone)
