@@ -851,10 +851,44 @@ describe ICU::Calendar do
     context 'when assigned nil' do
       subject(:calendar) { Calendar.new(timezone: timezone) }
 
-      it 'uses the default locale' do
+      it 'uses the default timezone' do
         expect(calendar.timezone = nil).to be_nil
         expect(calendar.timezone).to eq(Calendar.default_timezone)
       end
+    end
+  end
+
+  describe '#timezone_display_name' do
+    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
+
+    it 'returns the standard name in the default locale' do
+      case Library.uloc_getDefault
+      when /^en_/
+        expect(calendar.timezone_display_name).to eq('Central Standard Time')
+      when /^es_/
+        expect(calendar.timezone_display_name).to include("est\u00E1ndar", 'central')
+      when /^fr_/
+        expect(calendar.timezone_display_name).to include('normale', 'Centre').or include('normale', 'centre')
+      end
+    end
+
+    it 'returns the specified name in the default locale' do
+      case Library.uloc_getDefault
+      when /^en_/
+        expect(calendar.timezone_display_name(:dst)).to eq('Central Daylight Time')
+        expect(calendar.timezone_display_name(:short_standard)).to eq('CST')
+      when /^es_/
+        expect(calendar.timezone_display_name(:dst)).to include('verano', 'central')
+        expect(calendar.timezone_display_name(:short_standard)).to eq('CST').or include('GMT', '6')
+      when /^fr_/
+        expect(calendar.timezone_display_name(:dst)).to include("avanc\u00E9e", 'Centre')
+        expect(calendar.timezone_display_name(:short_standard)).to eq('HNC').or include('UTC', '6')
+      end
+    end
+
+    it 'returns the specified name in the specified locale' do
+      expect(calendar.timezone_display_name(:dst, 'es')).to include('verano', 'central')
+      expect(calendar.timezone_display_name(:short_dst, 'en')).to eq('CDT')
     end
   end
 

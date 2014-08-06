@@ -293,6 +293,12 @@ module ICU
       end
     end
 
+    def timezone_display_name(type = :standard, locale = nil)
+      Library.read_into_wchar_buffer(32) do |buffer, status|
+        Library.ucal_getTimeZoneDisplayName(@calendar, type, locale, buffer, buffer.size / buffer.type_size, status)
+      end
+    end
+
     def type
       Library.assert_success do |status|
         Library.ucal_getType(@calendar, status)
