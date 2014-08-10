@@ -892,6 +892,34 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#to_time' do
+    subject(:calendar) { Calendar.new(time: 1352959441_456, timezone: 'US/Central') }
+
+    it 'returns an equivalent Time' do
+      expect(calendar.to_time).to be_a(Time)
+      expect(calendar.to_time).to eq(Time.at(1352959441, 456_000))
+
+      expect(calendar.to_time.year).to eq(2012)
+      expect(calendar.to_time.month).to eq(11)
+      expect(calendar.to_time.day).to eq(15)
+      expect(calendar.to_time.hour).to eq(0)
+      expect(calendar.to_time.min).to eq(4)
+      expect(calendar.to_time.sec).to eq(1)
+      expect(calendar.to_time.usec).to eq(456_000)
+      expect(calendar.to_time.utc_offset).to eq(-6 * 60 * 60)
+    end
+
+    it 'does not populate the zone' do
+      expect(calendar.to_time.zone).to be(nil)
+    end
+
+    it 'has the right offset during summer time' do
+      summer = Calendar.new(time: 1273339800_000, timezone: 'US/Central')
+
+      expect(summer.to_time.utc_offset).to eq(-5 * 60 * 60)
+    end
+  end
+
   describe '#type' do
     it 'returns the Unicode calendar type' do
       expect(Calendar.new(locale: 'en_US').type).to eq(:gregorian)

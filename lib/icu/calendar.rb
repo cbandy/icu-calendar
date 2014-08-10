@@ -299,6 +299,18 @@ module ICU
       end
     end
 
+    def to_time
+      Time.new(
+        self[:year],
+        self[Library.enum_type(:date_field)[:month]] + 1,
+        self[:day_of_month],
+        self[:hour_of_day],
+        self[:minute],
+        self[:second] + Rational(self[:millisecond], 1000),
+        (self[:zone_offset] + self[:dst_offset]) / 1000
+      )
+    end
+
     def type
       Library.assert_success do |status|
         Library.ucal_getType(@calendar, status)
