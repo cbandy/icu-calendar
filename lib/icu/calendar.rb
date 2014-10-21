@@ -129,18 +129,6 @@ module ICU
       end
     end
 
-    def dup
-      calendar = automatically_close(
-        Library.assert_success do |status|
-          Library.ucal_clone(@calendar, status)
-        end
-      )
-
-      result = self.class.allocate
-      result.calendar = calendar
-      result
-    end
-
     def eql?(other)
       equivalent?(other) && time == other.time
     end
@@ -337,7 +325,7 @@ module ICU
 
     protected
 
-    attr_accessor :calendar
+    attr_reader :calendar
 
     private
 
@@ -362,6 +350,16 @@ module ICU
       else
         value
       end
+    end
+
+    def initialize_copy(other)
+      super
+
+      @calendar = automatically_close(
+        Library.assert_success do |status|
+          Library.ucal_clone(@calendar, status)
+        end
+      )
     end
 
     def timezone_transition(type)

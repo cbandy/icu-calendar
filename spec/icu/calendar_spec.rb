@@ -326,6 +326,18 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#clone' do
+    let(:original) { Calendar.new }
+    subject(:copy) { original.clone }
+
+    it 'creates a copy' do
+      expect(copy).to eql(original)
+      expect(copy).to_not be(original)
+
+      expect { original.set_date(2000, :january, 1) }.to_not change { copy.to_time }
+    end
+  end
+
   describe '#daylight_time?' do
     subject(:calendar) { Calendar.new(timezone: 'US/Central') }
 
@@ -374,6 +386,8 @@ describe ICU::Calendar do
     it 'creates a copy' do
       expect(copy).to eql(original)
       expect(copy).to_not be(original)
+
+      expect { original.set_date(2000, :january, 1) }.to_not change { copy.to_time }
     end
   end
 
