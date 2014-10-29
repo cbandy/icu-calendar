@@ -9,11 +9,11 @@ matrix:
     - rvm: 1.9.3
       env: ICU_VERSION=4.2.1
     - rvm: 1.9.3
-      env: ICU_VERSION=53.1
+      env: ICU_VERSION=54.1
     - rvm: 2.1
       env: ICU_VERSION=4.2.1
     - rvm: 2.1
-      env: ICU_VERSION=53.1
+      env: ICU_VERSION=54.1
   allow_failures:
     - rvm: ruby-head
 
