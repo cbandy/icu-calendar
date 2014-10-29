@@ -152,6 +152,20 @@ module ICU
       end)
     end
 
+    def gregorian_change
+      Library.assert_success do |status|
+        Library.ucal_getGregorianChange(@calendar, status)
+      end
+    end
+
+    def gregorian_change=(time)
+      time = coerce_to_milliseconds(time)
+
+      Library.assert_success do |status|
+        Library.ucal_setGregorianChange(@calendar, time, status)
+      end
+    end
+
     def initialize(options = {})
       calendar = wchar_buffer_from_string_or_nil(options[:timezone]) do |timezone|
         Library.assert_success do |status|

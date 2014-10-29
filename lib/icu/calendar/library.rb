@@ -134,6 +134,7 @@ module ICU
       attach_icu_function :ucal_open,         :calendar, [:buffer_in, :int32, :string, :calendar_type, :status]
 
       attach_icu_function :ucal_getAttribute,           :int32,  [:calendar, :attribute]
+      attach_icu_function :ucal_getGregorianChange,     :date,   [:calendar, :status]
       attach_icu_function :ucal_getLocaleByType,        :string, [:calendar, :locale_type, :status]
       attach_icu_function :ucal_getMillis,              :date,   [:calendar, :status]
       attach_icu_function :ucal_getTimeZoneDisplayName, :int32,  [:calendar, :display_name_type, :string, :buffer_out, :int32, :status]
@@ -142,6 +143,7 @@ module ICU
       attach_icu_function :ucal_setAttribute,           :void,   [:calendar, :attribute, :int32]
       attach_icu_function :ucal_setDate,                :void,   [:calendar, :int32, :month, :int32, :status]
       attach_icu_function :ucal_setDateTime,            :void,   [:calendar, :int32, :month, :int32, :int32, :int32, :int32, :status]
+      attach_icu_function :ucal_setGregorianChange,     :void,   [:calendar, :date, :status]
       attach_icu_function :ucal_setMillis,              :void,   [:calendar, :date, :status]
       attach_icu_function :ucal_setTimeZone,            :void,   [:calendar, :buffer_in, :int32, :status]
 

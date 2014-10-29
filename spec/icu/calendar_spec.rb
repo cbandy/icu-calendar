@@ -488,6 +488,52 @@ describe ICU::Calendar do
     end
   end
 
+  describe '#gregorian_change' do
+    subject(:calendar) { Calendar.new(locale: '@calendar=gregorian') }
+
+    it 'defaults to 00:00 October 15, 1582' do
+      expect(calendar.gregorian_change).to eq(-12219292800_000.0)
+      expect(calendar.gregorian_change).to eq(Time.local(1582, 10, 15, 0, 0, 0).to_f * 1000)
+    end
+
+    describe 'assignment' do
+      let(:datetime) { DateTime.iso8601(:'2012-11-15T00:04:01Z') }
+      let(:integer)  { 1352937841_000 }
+      let(:time)     { Time.utc(2012, 11, 15, 0, 4, 1) }
+
+      it 'can be assigned with an Integer' do
+        expect(calendar.gregorian_change = integer).to be(integer)
+        expect(calendar.gregorian_change).to eq(integer)
+        expect(calendar.gregorian_change).to be_a Float
+      end
+
+      it 'can be assigned with a Time' do
+        expect(calendar.gregorian_change = time).to be(time)
+        expect(calendar.gregorian_change).to eq(integer)
+        expect(calendar.gregorian_change).to be_a Float
+      end
+
+      it 'does not modify the passed Time' do
+        expect { calendar.gregorian_change = time }.to_not change { time.utc? }
+      end
+
+      it 'can be assigned with a DateTime' do
+        require 'date'
+        expect(calendar.gregorian_change = datetime).to be(datetime)
+        expect(calendar.gregorian_change).to eq(integer)
+        expect(calendar.gregorian_change).to be_a Float
+      end
+
+      it 'can be assigned with a Calendar' do
+        other = Calendar.new(time: integer)
+
+        expect(calendar.gregorian_change = other).to be(other)
+        expect(calendar.gregorian_change).to eq(integer)
+        expect(calendar.gregorian_change).to be_a Float
+      end
+    end
+  end
+
   describe '#least_maximum' do
     subject(:calendar) { Calendar.new }
 
