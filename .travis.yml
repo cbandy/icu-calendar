@@ -21,7 +21,7 @@ before_install:
   - test -n "$ICU_VERSION" || sudo apt-get install libicu-dev
   - >
     test -z "$ICU_VERSION" || (
-      curl "http://download.icu-project.org/files/icu4c/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
+      curl -L "https://downloads.sourceforge.net/project/icu/ICU4C/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
       mkdir icu/build
       cd icu/source
       ./runConfigureICU Linux --disable-extras --disable-samples --disable-tests --prefix="$(dirname $(pwd))/build"
