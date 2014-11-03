@@ -31,7 +31,7 @@ before_install:
 
 script: >
   if [ "$ICU_VERSION" ] ; then
-    LD_LIBRARY_PATH="$(pwd)/icu/build/lib" rake -- --with-icu-dir="$(pwd)/icu/build"
+    ICU_DIR="$(pwd)/icu/build" LD_LIBRARY_PATH="$(pwd)/icu/build/lib" rake
   else
     rake
   fi

@@ -1,4 +1,4 @@
-require 'icu/calendar/library'
+require 'icu/calendar'
 
 describe ICU::Calendar::Library do
   Library = ICU::Calendar::Library
@@ -9,17 +9,6 @@ describe ICU::Calendar::Library do
     it { should be_an FFI::Enum }
     specify { expect(enum.to_hash).to eq(values) }
     specify { expect(Library.find_type(name)).to be }
-  end
-
-  def self.compiled_with_icu_version_at_least(version)
-    Gem::Version.new(version) <= Gem::Version.new(Library::U_ICU_VERSION)
-  end
-
-  describe 'Compiled ICU version' do
-    subject(:version) { Library::U_ICU_VERSION }
-
-    it { should be_a String }
-    it { should match /^[0-9.]+$/ }
   end
 
   describe 'Loaded ICU version' do
@@ -275,13 +264,8 @@ describe ICU::Calendar::Library do
   end
 
   describe 'Attribute' do
-    if compiled_with_icu_version_at_least('49')
-      it_behaves_like 'an enumeration', :attribute,
-        lenient: 0, first_day_of_week: 1, minimal_days_in_first_week: 2, repeated_wall_time: 3, skipped_wall_time: 4
-    else
-      it_behaves_like 'an enumeration', :attribute,
-        lenient: 0, first_day_of_week: 1, minimal_days_in_first_week: 2
-    end
+    it_behaves_like 'an enumeration', :attribute,
+      lenient: 0, first_day_of_week: 1, minimal_days_in_first_week: 2, repeated_wall_time: 3, skipped_wall_time: 4
   end
 
   describe 'Calendar Type' do
@@ -322,38 +306,22 @@ describe ICU::Calendar::Library do
   end
 
   describe 'System Time Zone Type' do
-    if compiled_with_icu_version_at_least('4.8')
-      it_behaves_like 'an enumeration', :system_timezone_type,
-        any: 0, canonical: 1, canonical_location: 2
-    else
-      it_behaves_like 'an enumeration', :system_timezone_type, {}
-    end
+    it_behaves_like 'an enumeration', :system_timezone_type,
+      any: 0, canonical: 1, canonical_location: 2
   end
 
   describe 'Time Zone Transition Type' do
-    if compiled_with_icu_version_at_least('50')
-      it_behaves_like 'an enumeration', :timezone_transition_type,
-        next: 0, next_inclusive: 1, previous: 2, previous_inclusive: 3
-    else
-      it_behaves_like 'an enumeration', :timezone_transition_type, {}
-    end
+    it_behaves_like 'an enumeration', :timezone_transition_type,
+      next: 0, next_inclusive: 1, previous: 2, previous_inclusive: 3
   end
 
   describe 'Wall Time Option' do
-    if compiled_with_icu_version_at_least('49')
-      it_behaves_like 'an enumeration', :walltime_option,
-        last: 0, first: 1, next_valid: 2
-    else
-      it_behaves_like 'an enumeration', :walltime_option, {}
-    end
+    it_behaves_like 'an enumeration', :walltime_option,
+      last: 0, first: 1, next_valid: 2
   end
 
   describe 'Weekday Type' do
-    if compiled_with_icu_version_at_least('4.4')
-      it_behaves_like 'an enumeration', :weekday_type,
-        weekday: 0, weekend: 1, weekend_onset: 2, weekend_cease: 3
-    else
-      it_behaves_like 'an enumeration', :weekday_type, {}
-    end
+    it_behaves_like 'an enumeration', :weekday_type,
+      weekday: 0, weekend: 1, weekend_onset: 2, weekend_cease: 3
   end
 end

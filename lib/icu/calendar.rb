@@ -2,6 +2,8 @@ require 'icu/calendar/library'
 
 module ICU
   class Calendar
+    RuntimeError = Class.new(::RuntimeError)
+
     include Comparable
 
     class << self

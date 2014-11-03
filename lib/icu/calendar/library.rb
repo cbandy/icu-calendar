@@ -1,7 +1,4 @@
 require 'ffi'
-require_relative 'icu_constants'
-require_relative 'library/error_code'
-require_relative 'library/version_info'
 
 module ICU
   class Calendar
@@ -13,6 +10,15 @@ module ICU
           function_names("u_errorName#{suffix}", nil).any? { |name| library.find_function(name) }
         end
       end
+
+      require_relative 'library/constants'
+      require_relative 'library/error_code'
+      require_relative 'library/version_info'
+
+      U_BUFFER_OVERFLOW_ERROR = 15
+      U_MAX_VERSION_LENGTH = 4
+      U_MAX_VERSION_STRING_LENGTH = 20
+      U_ZERO_ERROR = 0
 
       class << self
         def assert_success
