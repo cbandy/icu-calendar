@@ -14,20 +14,25 @@ matrix:
       env: ICU_VERSION=4.2.1
     - rvm: 2.1
       env: ICU_VERSION=54.1
+    - rvm: 2.1
+      env: WITH_DEV_PACKAGE=1
   allow_failures:
     - rvm: ruby-head
 
 before_install:
-  - test -n "$ICU_VERSION" || sudo apt-get install libicu-dev
   - >
-    test -z "$ICU_VERSION" || (
+    if [ "$ICU_VERSION" ] ; then
       curl -L "https://downloads.sourceforge.net/project/icu/ICU4C/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
       mkdir icu/build
       cd icu/source
       ./runConfigureICU Linux --disable-extras --disable-samples --disable-tests --prefix="$(dirname $(pwd))/build"
       make --quiet
       make --quiet install
-    )
+    elif [ "$WITH_DEV_PACKAGE" ] ; then
+      sudo apt-get install libicu-dev
+    else
+      sudo apt-get install $(apt-cache --names-only search libicu | grep -o '^libicu[0-9]* ')
+    fi
 
 script: >
   if [ "$ICU_VERSION" ] ; then

@@ -5,9 +5,21 @@ module ICU
     module Library
       extend FFI::Library
 
-      ffi_lib('libicutu').each do |library|
-        @suffix ||= ['', '_4_2', '_44', '_46', *(48..100).map { |i| "_#{i}" }].find do |suffix|
-          function_names("u_errorName#{suffix}", nil).any? { |name| library.find_function(name) }
+      %w( icutu ).tap do |libraries|
+        begin
+          ffi_lib(*libraries)
+        rescue LoadError
+          ffi_lib(*libraries.map do |lib|
+            if 'dll' == FFI::Platform::LIBSUFFIX
+              [42, 44, 46, *(48..100)].map { |i| "#{lib}#{i}.#{FFI::Platform::LIBSUFFIX}" }
+            else
+              [42, 44, 46, *(48..100)].map { |i| "#{lib}.#{FFI::Platform::LIBSUFFIX}.#{i}" }
+            end
+          end)
+        end.each do |library|
+          @suffix ||= ['', '_4_2', '_44', '_46', *(48..100).map { |i| "_#{i}" }].find do |suffix|
+            function_names("u_errorName#{suffix}", nil).any? { |name| library.find_function(name) }
+          end
         end
       end
 
