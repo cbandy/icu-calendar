@@ -19,24 +19,4 @@ matrix:
   allow_failures:
     - rvm: ruby-head
 
-before_install:
-  - >
-    if [ "$ICU_VERSION" ] ; then
-      curl -L "https://downloads.sourceforge.net/project/icu/ICU4C/$ICU_VERSION/icu4c-$(echo $ICU_VERSION | tr . _)-src.tgz" | tar xz
-      mkdir icu/build
-      cd icu/source
-      ./runConfigureICU Linux --disable-extras --disable-samples --disable-tests --prefix="$(dirname $(pwd))/build"
-      make --quiet
-      make --quiet install
-    elif [ "$WITH_DEV_PACKAGE" ] ; then
-      sudo apt-get install libicu-dev
-    else
-      sudo apt-get install $(apt-cache --names-only search libicu | grep -o '^libicu[0-9]* ')
-    fi
-
-script: >
-  if [ "$ICU_VERSION" ] ; then
-    ICU_DIR="$(pwd)/icu/build" LD_LIBRARY_PATH="$(pwd)/icu/build/lib" rake
-  else
-    rake
-  fi
+before_install: ./.travis.sh before_install
