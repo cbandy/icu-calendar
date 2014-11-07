@@ -13,6 +13,7 @@ CODE
   end
 
 describe ICU::Calendar::Library, icu_headers: icu_headers, if: icu_headers do
+
   def self.icu_headers_at_least(version)
     metadata[:icu_headers] && Gem::Version.new(version) <= Gem::Version.new(metadata[:icu_headers])
   end

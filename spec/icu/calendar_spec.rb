@@ -1,10 +1,9 @@
 require 'icu/calendar'
 
 describe ICU::Calendar do
-  Calendar = ICU::Calendar
 
   def self.icu_version_at_least(version)
-    Gem::Version.new(version) <= Gem::Version.new(Calendar::Library.version)
+    Gem::Version.new(version) <= Gem::Version.new(ICU::Calendar::Library.version)
   end
 
   def icu_version_at_least(version)
@@ -12,11 +11,11 @@ describe ICU::Calendar do
   end
 
   it 'defines a RuntimeError' do
-    expect(Calendar::RuntimeError.new).to be_a(::RuntimeError)
+    expect(ICU::Calendar::RuntimeError.new).to be_a(::RuntimeError)
   end
 
   describe 'available locales' do
-    subject(:locales) { Calendar.available_locales }
+    subject(:locales) { ICU::Calendar.available_locales }
 
     it { should be_an Array }
     it { should_not be_empty }
@@ -27,7 +26,7 @@ describe ICU::Calendar do
   end
 
   describe 'timezones' do
-    subject(:zones) { Calendar.timezones }
+    subject(:zones) { ICU::Calendar.timezones }
 
     it { should be_an Array }
     it { should_not be_empty }
@@ -39,45 +38,45 @@ describe ICU::Calendar do
 
     describe 'canonical timezone identifier' do
       it 'returns a canonical system identifier' do
-        expect(Calendar.canonical_timezone_identifier('GMT')).to eq('Etc/GMT')
+        expect(ICU::Calendar.canonical_timezone_identifier('GMT')).to eq('Etc/GMT')
       end
 
       it 'returns a normalized custom identifier' do
-        expect(Calendar.canonical_timezone_identifier('GMT-6')).to eq('GMT-06:00')
-        expect(Calendar.canonical_timezone_identifier('GMT+1:15')).to eq('GMT+01:15')
+        expect(ICU::Calendar.canonical_timezone_identifier('GMT-6')).to eq('GMT-06:00')
+        expect(ICU::Calendar.canonical_timezone_identifier('GMT+1:15')).to eq('GMT+01:15')
       end
     end
 
     describe 'country timezones' do
       it 'returns a list of timezones associated with a country' do
-        expect(Calendar.country_timezones('DE')).to include('Europe/Berlin')
-        expect(Calendar.country_timezones('US')).to include('America/Chicago')
-        expect(Calendar.country_timezones('CN')).to_not include('UTC')
+        expect(ICU::Calendar.country_timezones('DE')).to include('Europe/Berlin')
+        expect(ICU::Calendar.country_timezones('US')).to include('America/Chicago')
+        expect(ICU::Calendar.country_timezones('CN')).to_not include('UTC')
       end
 
       it 'returns a list of timezones associated with no countries' do
-        expect(Calendar.country_timezones(nil)).to include('UTC')
+        expect(ICU::Calendar.country_timezones(nil)).to include('UTC')
       end
     end
 
     describe 'daylight savings' do
       it 'returns the milliseconds added during daylight savings time' do
-        expect(Calendar.dst_savings('America/Chicago')).to be(3_600_000)
-        expect(Calendar.dst_savings('GMT')).to be(0)
+        expect(ICU::Calendar.dst_savings('America/Chicago')).to be(3_600_000)
+        expect(ICU::Calendar.dst_savings('GMT')).to be(0)
       end
     end
 
     describe 'default timezone' do
-      subject(:default) { Calendar.default_timezone }
+      subject(:default) { ICU::Calendar.default_timezone }
 
       let(:timezone) do
-        timezones = Calendar.timezones
-        timezones.delete(Calendar.default_timezone)
+        timezones = ICU::Calendar.timezones
+        timezones.delete(ICU::Calendar.default_timezone)
         timezones.sample
       end
 
-      before { @original = Calendar.default_timezone }
-      after  { Calendar.default_timezone = @original }
+      before { @original = ICU::Calendar.default_timezone }
+      after  { ICU::Calendar.default_timezone = @original }
 
       it 'is a UTF-8 String' do
         expect(default).to be_a String
@@ -85,65 +84,65 @@ describe ICU::Calendar do
       end
 
       it 'can be assigned' do
-        expect(Calendar.default_timezone = timezone).to eq(timezone)
-        expect(Calendar.default_timezone).to eq(timezone)
+        expect(ICU::Calendar.default_timezone = timezone).to eq(timezone)
+        expect(ICU::Calendar.default_timezone).to eq(timezone)
       end
     end
 
     describe 'timezone data version' do
-      subject { Calendar.timezone_data_version }
+      subject { ICU::Calendar.timezone_data_version }
       it { should be_a String }
     end
 
     describe 'timezone identifiers', if: icu_version_at_least('4.8') do
       it 'returns timezones of a particular type' do
-        expect(Calendar.timezone_identifiers(:any)).to include('UTC')
-        expect(Calendar.timezone_identifiers(:canonical)).to include('Factory')
-        expect(Calendar.timezone_identifiers(:canonical_location)).to include('America/Chicago')
+        expect(ICU::Calendar.timezone_identifiers(:any)).to include('UTC')
+        expect(ICU::Calendar.timezone_identifiers(:canonical)).to include('Factory')
+        expect(ICU::Calendar.timezone_identifiers(:canonical_location)).to include('America/Chicago')
       end
 
       it 'filters timezones by country' do
-        expect(Calendar.timezone_identifiers(:any, 'US')).to_not include('UTC')
-        expect(Calendar.timezone_identifiers(:canonical, 'DE')).to include('Europe/Berlin')
+        expect(ICU::Calendar.timezone_identifiers(:any, 'US')).to_not include('UTC')
+        expect(ICU::Calendar.timezone_identifiers(:canonical, 'DE')).to include('Europe/Berlin')
       end
 
       it 'filters timezones by offset in milliseconds' do
-        expect(Calendar.timezone_identifiers(:any, nil, -10_800_000)).to include('BET')
-        expect(Calendar.timezone_identifiers(:canonical, nil, 3_600_000)).to include('Europe/Berlin')
+        expect(ICU::Calendar.timezone_identifiers(:any, nil, -10_800_000)).to include('BET')
+        expect(ICU::Calendar.timezone_identifiers(:canonical, nil, 3_600_000)).to include('Europe/Berlin')
       end
     end
   end
 
   describe 'initialization' do
     context 'with no arguments' do
-      subject(:calendar) { Calendar.new }
+      subject(:calendar) { ICU::Calendar.new }
 
       it 'uses the default locale' do
-        expect(calendar.locale).to eq(Calendar::Library.uloc_getDefault)
+        expect(calendar.locale).to eq(ICU::Calendar::Library.uloc_getDefault)
       end
 
       it 'uses the default timezone' do
         if icu_version_at_least('51')
-          expect(calendar.timezone).to eq(Calendar.default_timezone)
+          expect(calendar.timezone).to eq(ICU::Calendar.default_timezone)
         end
       end
     end
 
     context 'with a nil timezone' do
-      subject(:calendar) { Calendar.new(timezone: nil) }
+      subject(:calendar) { ICU::Calendar.new(timezone: nil) }
 
       it 'uses the default timezone' do
         if icu_version_at_least('51')
-          expect(calendar.timezone).to eq(Calendar.default_timezone)
+          expect(calendar.timezone).to eq(ICU::Calendar.default_timezone)
         end
       end
     end
 
     context 'with a timezone' do
-      subject(:calendar) { Calendar.new(timezone: timezone) }
+      subject(:calendar) { ICU::Calendar.new(timezone: timezone) }
       let(:timezone) do
-        timezones = Calendar.timezones
-        timezones.delete(Calendar.default_timezone)
+        timezones = ICU::Calendar.timezones
+        timezones.delete(ICU::Calendar.default_timezone)
         timezones.sample
       end
 
@@ -155,15 +154,15 @@ describe ICU::Calendar do
     end
 
     context 'with a nil locale' do
-      subject(:calendar) { Calendar.new(locale: nil) }
+      subject(:calendar) { ICU::Calendar.new(locale: nil) }
 
       it 'uses the default locale' do
-        expect(calendar.locale).to eq(Calendar::Library.uloc_getDefault)
+        expect(calendar.locale).to eq(ICU::Calendar::Library.uloc_getDefault)
       end
     end
 
     context 'with a locale' do
-      subject(:calendar) { Calendar.new(locale: 'de_DE') }
+      subject(:calendar) { ICU::Calendar.new(locale: 'de_DE') }
 
       it 'uses that locale' do
         expect(calendar.locale).to eq('de_DE')
@@ -172,7 +171,7 @@ describe ICU::Calendar do
   end
 
   describe '#[]' do
-    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     it 'gets the requested field of the assigned time' do
       expect(calendar[:year]).to eq(2012)
@@ -186,7 +185,7 @@ describe ICU::Calendar do
     end
 
     it 'returns raw values when called with an Integer' do
-      date_field_enum = Calendar::Library.enum_type(:date_field)
+      date_field_enum = ICU::Calendar::Library.enum_type(:date_field)
 
       expect(calendar[date_field_enum[:month]]).to eq(10)
       expect(calendar[date_field_enum[:day_of_week]]).to eq(5)
@@ -195,7 +194,7 @@ describe ICU::Calendar do
   end
 
   describe '#[]=' do
-    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     it 'sets the requested field of the assigned time' do
       calendar[:year] = 2013
@@ -234,7 +233,7 @@ describe ICU::Calendar do
   end
 
   describe '#<=>' do
-    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a Time' do
       specify { expect(calendar <=> Time.local(2012, 11, 15, 0, 4, 2)).to eq(-1) }
@@ -243,7 +242,7 @@ describe ICU::Calendar do
     end
 
     context 'with a Calendar' do
-      let(:other) { Calendar.new }
+      let(:other) { ICU::Calendar.new }
 
       specify { other.time = Time.local(2012, 11, 15, 0, 4, 2); expect(calendar <=> other).to eq(-1) }
       specify { other.time = Time.local(2012, 11, 15, 0, 4, 1); expect(calendar <=> other).to eq(0) }
@@ -256,7 +255,7 @@ describe ICU::Calendar do
   end
 
   describe '#actual_maximum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the maximum possible value for a field based on the time' do
       calendar.time = Time.local(2012, 2, 1)
@@ -270,7 +269,7 @@ describe ICU::Calendar do
   end
 
   describe '#actual_minimum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the minimum possible value for a field based on the time' do
       calendar.time = Time.local(2012, 2, 1)
@@ -280,7 +279,7 @@ describe ICU::Calendar do
   end
 
   describe '#add' do
-    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a positive value' do
       it 'moves the time of the calendar forward' do
@@ -309,7 +308,7 @@ describe ICU::Calendar do
   end
 
   describe '#clear' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'clears all fields, setting the time to Epoch' do
       calendar.clear
@@ -327,7 +326,7 @@ describe ICU::Calendar do
   end
 
   describe '#clone' do
-    let(:original) { Calendar.new }
+    let(:original) { ICU::Calendar.new }
     subject(:copy) { original.clone }
 
     it 'creates a copy' do
@@ -339,7 +338,7 @@ describe ICU::Calendar do
   end
 
   describe '#daylight_time?' do
-    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
+    subject(:calendar) { ICU::Calendar.new(timezone: 'US/Central') }
 
     specify do
       calendar.time = Time.new(2010, 5, 8)
@@ -353,8 +352,8 @@ describe ICU::Calendar do
   end
 
   describe '#difference', if: icu_version_at_least('4.8') do
-    let(:young) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
-    let(:old)   { Calendar.new(time: Time.local(2010, 5, 8, 6, 30, 0)) }
+    let(:young) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    let(:old)   { ICU::Calendar.new(time: Time.local(2010, 5, 8, 6, 30, 0)) }
 
     example_group 'it returns the difference between two times' do
       describe 'when the callee is before the argument, the result is positive' do
@@ -380,7 +379,7 @@ describe ICU::Calendar do
   end
 
   describe '#dup' do
-    let(:original) { Calendar.new }
+    let(:original) { ICU::Calendar.new }
     subject(:copy) { original.dup }
 
     it 'creates a copy' do
@@ -392,8 +391,8 @@ describe ICU::Calendar do
   end
 
   describe '#eql?' do
-    subject(:calendar) { Calendar.new }
-    let(:other) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
+    let(:other) { ICU::Calendar.new }
     let(:time)  { Time.now }
 
     it 'compares the behavior of two Calendars and their time' do
@@ -422,11 +421,11 @@ describe ICU::Calendar do
   end
 
   describe '#equivalent?' do
-    subject(:calendar) { Calendar.new }
-    let(:other)        { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
+    let(:other)        { ICU::Calendar.new }
     let(:timezone) do
-      timezones = Calendar.timezones
-      timezones.delete(Calendar.default_timezone)
+      timezones = ICU::Calendar.timezones
+      timezones.delete(ICU::Calendar.default_timezone)
       timezones.sample
     end
 
@@ -459,7 +458,7 @@ describe ICU::Calendar do
   end
 
   describe '#first_day_of_week' do
-    subject(:calendar) { Calendar.new(locale: 'en_US') }
+    subject(:calendar) { ICU::Calendar.new(locale: 'en_US') }
 
     it 'returns a Day of Week' do
       expect(calendar.first_day_of_week).to be(:sunday)
@@ -477,7 +476,7 @@ describe ICU::Calendar do
   end
 
   describe '#greatest_minimum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the greatest minimum value for a field (if the minimum varies)' do
       expect(calendar.greatest_minimum(:month)).to eq(:january)
@@ -489,7 +488,7 @@ describe ICU::Calendar do
   end
 
   describe '#gregorian_change' do
-    subject(:calendar) { Calendar.new(locale: '@calendar=gregorian') }
+    subject(:calendar) { ICU::Calendar.new(locale: '@calendar=gregorian') }
 
     it 'defaults to 00:00 October 15, 1582' do
       expect(calendar.gregorian_change).to eq(-12219292800_000.0)
@@ -525,7 +524,7 @@ describe ICU::Calendar do
       end
 
       it 'can be assigned with a Calendar' do
-        other = Calendar.new(time: integer)
+        other = ICU::Calendar.new(time: integer)
 
         expect(calendar.gregorian_change = other).to be(other)
         expect(calendar.gregorian_change).to eq(integer)
@@ -535,7 +534,7 @@ describe ICU::Calendar do
   end
 
   describe '#least_maximum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the least maximum value for a field (if the maximum varies)' do
       expect(calendar.least_maximum(:month)).to eq(:december)
@@ -547,7 +546,7 @@ describe ICU::Calendar do
   end
 
   describe '#lenient?' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns whether or not date/time interpretation is lenient' do
       calendar.lenient = false
@@ -563,7 +562,7 @@ describe ICU::Calendar do
   end
 
   describe '#lenient=' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
     before { calendar.clear }
 
     context 'when true' do
@@ -585,38 +584,38 @@ describe ICU::Calendar do
         calendar.set_date(1996, :february, 942)
 
         %w(year month day_of_month).each do |field|
-          expect { calendar[field.to_sym] }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+          expect { calendar[field.to_sym] }.to raise_error(ICU::Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
         end
 
-        expect { calendar.time }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+        expect { calendar.time }.to raise_error(ICU::Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
       end
     end
   end
 
   describe '#locale' do
     it 'returns the locale' do
-      expect(Calendar.new(locale: 'en_US').locale).to eq('en_US')
+      expect(ICU::Calendar.new(locale: 'en_US').locale).to eq('en_US')
 
       if icu_version_at_least('4.6')
-        expect(Calendar.new(locale: 'de').locale).to eq('de_DE')
+        expect(ICU::Calendar.new(locale: 'de').locale).to eq('de_DE')
       else
-        expect(Calendar.new(locale: 'de').locale).to eq('de')
+        expect(ICU::Calendar.new(locale: 'de').locale).to eq('de')
       end
     end
 
     it 'returns the locale in which the calendar rules are defined' do
       if icu_version_at_least('4.8')
-        expect(Calendar.new(locale: 'en_US').locale(:actual)).to eq('en')
-        expect(Calendar.new(locale: 'zh_TW').locale(:actual)).to eq('zh_Hant')
+        expect(ICU::Calendar.new(locale: 'en_US').locale(:actual)).to eq('en')
+        expect(ICU::Calendar.new(locale: 'zh_TW').locale(:actual)).to eq('zh_Hant')
       else
-        expect(Calendar.new(locale: 'en_US').locale(:actual)).to eq('en_US')
-        expect(Calendar.new(locale: 'zh_TW').locale(:actual)).to eq('zh_Hant_TW')
+        expect(ICU::Calendar.new(locale: 'en_US').locale(:actual)).to eq('en_US')
+        expect(ICU::Calendar.new(locale: 'zh_TW').locale(:actual)).to eq('zh_Hant_TW')
       end
     end
   end
 
   describe '#maximum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the maximum possible value for a field' do
       expect(calendar.maximum(:month)).to eq(:december)
@@ -627,7 +626,7 @@ describe ICU::Calendar do
   end
 
   describe '#minimal_days_in_first_week' do
-    subject(:calendar) { Calendar.new(time: Time.local(2014, 1, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2014, 1, 1)) }
 
     it 'is the minimum number of days needed to indicate the first "week"' do
       expect(calendar.minimal_days_in_first_week = 1).to eq(1)
@@ -639,7 +638,7 @@ describe ICU::Calendar do
   end
 
   describe '#minimum' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns the minimum possible value for a field' do
       expect(calendar.minimum(:month)).to eq(:january)
@@ -650,7 +649,7 @@ describe ICU::Calendar do
   end
 
   describe '#next_timezone_transition', if: icu_version_at_least('50') do
-    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
+    subject(:calendar) { ICU::Calendar.new(timezone: 'US/Central') }
     let(:transition) { Time.utc(2013, 11, 3, 7) }
 
     it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the next transition' do
@@ -679,7 +678,7 @@ describe ICU::Calendar do
     end
 
     context 'with a zone that does not transition' do
-      subject(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
+      subject(:calendar) { ICU::Calendar.new(timezone: 'Asia/Kathmandu') }
 
       it 'returns nil' do
         expect(calendar.next_timezone_transition).to be nil
@@ -690,7 +689,7 @@ describe ICU::Calendar do
   end
 
   describe '#previous_timezone_transition', if: icu_version_at_least('50') do
-    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
+    subject(:calendar) { ICU::Calendar.new(timezone: 'US/Central') }
     let(:transition) { Time.utc(2013, 11, 3, 7) }
 
     it 'returns the milliseconds since 1970-01-01 00:00:00 UTC of the previous transition' do
@@ -719,7 +718,7 @@ describe ICU::Calendar do
     end
 
     context 'with a zone that does not transition' do
-      subject(:calendar) { Calendar.new(timezone: 'Asia/Kathmandu') }
+      subject(:calendar) { ICU::Calendar.new(timezone: 'Asia/Kathmandu') }
 
       it 'returns nil' do
         calendar.time = Time.utc(1900, 1, 1)
@@ -731,7 +730,7 @@ describe ICU::Calendar do
   end
 
   describe '#repeated_wall_time', if: icu_version_at_least('49') do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns a Wall Time Option' do
       expect(calendar.repeated_wall_time).to eq(:last)
@@ -749,7 +748,7 @@ describe ICU::Calendar do
   end
 
   describe '#roll' do
-    subject(:calendar) { Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
+    subject(:calendar) { ICU::Calendar.new(time: Time.local(2012, 11, 15, 0, 4, 1)) }
 
     context 'with a positive value' do
       it 'moves the field forward in time' do
@@ -778,7 +777,7 @@ describe ICU::Calendar do
   end
 
   describe '#set_date' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
     before { calendar.clear }
 
     it 'sets the year, month and day fields' do
@@ -803,7 +802,7 @@ describe ICU::Calendar do
   end
 
   describe '#set_date_and_time' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
     before { calendar.clear }
 
     it 'sets the year, month, day, hour, minute and second fields' do
@@ -832,7 +831,7 @@ describe ICU::Calendar do
   end
 
   describe '#skipped_wall_time', if: icu_version_at_least('49') do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'returns a Wall Time Option' do
       expect(calendar.skipped_wall_time).to eq(:last)
@@ -850,7 +849,7 @@ describe ICU::Calendar do
   end
 
   describe '#time' do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
 
     it 'is the number of milliseconds since 1970-01-01 00:00:00 UTC' do
       expect(calendar.time).to be_within(1000).of(Time.now.utc.to_f * 1000)
@@ -886,7 +885,7 @@ describe ICU::Calendar do
       end
 
       it 'can be assigned with a Calendar' do
-        other = Calendar.new(time: integer)
+        other = ICU::Calendar.new(time: integer)
 
         expect(calendar.time = other).to be(other)
         expect(calendar.time).to eq(integer)
@@ -896,10 +895,10 @@ describe ICU::Calendar do
   end
 
   describe '#timezone', if: icu_version_at_least('51') do
-    subject(:calendar) { Calendar.new }
+    subject(:calendar) { ICU::Calendar.new }
     let(:timezone) do
-      timezones = Calendar.timezones
-      timezones.delete(Calendar.default_timezone)
+      timezones = ICU::Calendar.timezones
+      timezones.delete(ICU::Calendar.default_timezone)
       timezones.sample
     end
 
@@ -909,20 +908,20 @@ describe ICU::Calendar do
     end
 
     context 'when assigned nil' do
-      subject(:calendar) { Calendar.new(timezone: timezone) }
+      subject(:calendar) { ICU::Calendar.new(timezone: timezone) }
 
       it 'uses the default timezone' do
         expect(calendar.timezone = nil).to be_nil
-        expect(calendar.timezone).to eq(Calendar.default_timezone)
+        expect(calendar.timezone).to eq(ICU::Calendar.default_timezone)
       end
     end
   end
 
   describe '#timezone_display_name' do
-    subject(:calendar) { Calendar.new(timezone: 'US/Central') }
+    subject(:calendar) { ICU::Calendar.new(timezone: 'US/Central') }
 
     it 'returns the standard name in the default locale' do
-      case Library.uloc_getDefault
+      case ICU::Calendar::Library.uloc_getDefault
       when /^en_/
         expect(calendar.timezone_display_name).to eq('Central Standard Time')
       when /^es_/
@@ -933,7 +932,7 @@ describe ICU::Calendar do
     end
 
     it 'returns the specified name in the default locale' do
-      case Library.uloc_getDefault
+      case ICU::Calendar::Library.uloc_getDefault
       when /^en_/
         expect(calendar.timezone_display_name(:dst)).to eq('Central Daylight Time')
         expect(calendar.timezone_display_name(:short_standard)).to eq('CST')
@@ -953,7 +952,7 @@ describe ICU::Calendar do
   end
 
   describe '#to_time' do
-    subject(:calendar) { Calendar.new(time: 1352959441_456, timezone: 'US/Central') }
+    subject(:calendar) { ICU::Calendar.new(time: 1352959441_456, timezone: 'US/Central') }
 
     it 'returns an equivalent Time' do
       expect(calendar.to_time).to be_a(Time)
@@ -974,7 +973,7 @@ describe ICU::Calendar do
     end
 
     it 'has the right offset during summer time' do
-      summer = Calendar.new(time: 1273339800_000, timezone: 'US/Central')
+      summer = ICU::Calendar.new(time: 1273339800_000, timezone: 'US/Central')
 
       expect(summer.to_time.utc_offset).to eq(-5 * 60 * 60)
     end
@@ -982,22 +981,22 @@ describe ICU::Calendar do
 
   describe '#type' do
     it 'returns the Unicode calendar type' do
-      expect(Calendar.new(locale: 'en_US').type).to eq(:gregorian)
-      expect(Calendar.new(locale: 'th_TH').type).to eq(:buddhist)
-      expect(Calendar.new(locale: '@calendar=chinese').type).to eq(:chinese)
+      expect(ICU::Calendar.new(locale: 'en_US').type).to eq(:gregorian)
+      expect(ICU::Calendar.new(locale: 'th_TH').type).to eq(:buddhist)
+      expect(ICU::Calendar.new(locale: '@calendar=chinese').type).to eq(:chinese)
     end
 
     context 'when the type is invalid' do
       it 'returns the locale default' do
-        expect(Calendar.new(locale: 'en_US@calendar=wat').type).to eq(:gregorian)
-        expect(Calendar.new(locale: 'th_TH@calendar=wat').type).to eq(:buddhist)
+        expect(ICU::Calendar.new(locale: 'en_US@calendar=wat').type).to eq(:gregorian)
+        expect(ICU::Calendar.new(locale: 'th_TH@calendar=wat').type).to eq(:buddhist)
       end
     end
   end
 
   describe '#weekday_type', if: icu_version_at_least('4.4') do
-    let(:en_US) { Calendar.new(locale: 'en_US') }
-    let(:hi_IN) { Calendar.new(locale: 'hi_IN') }
+    let(:en_US) { ICU::Calendar.new(locale: 'en_US') }
+    let(:hi_IN) { ICU::Calendar.new(locale: 'hi_IN') }
 
     it 'returns the type of the day of the week' do
       expect(en_US.weekday_type(:friday)).to eq(:weekday)
@@ -1025,7 +1024,7 @@ describe ICU::Calendar do
   end
 
   describe '#weekend?', if: icu_version_at_least('4.4') do
-    subject(:calendar) { Calendar.new(locale: 'en_US', time: Time.utc(2014, 8, 2)) }
+    subject(:calendar) { ICU::Calendar.new(locale: 'en_US', time: Time.utc(2014, 8, 2)) }
 
     it 'returns true when the time is during the weekend' do
       calendar[:day_of_week] = :sunday
@@ -1037,7 +1036,7 @@ describe ICU::Calendar do
   end
 
   describe '#weekend_transition', if: icu_version_at_least('4.4') do
-    let(:calendar) { Calendar.new(locale: 'en_US') }
+    let(:calendar) { ICU::Calendar.new(locale: 'en_US') }
 
     it 'returns the time of day (in milliseconds) at which the weekend begins or ends' do
       expect(calendar.weekend_transition(:saturday)).to eq(0)
@@ -1046,7 +1045,7 @@ describe ICU::Calendar do
 
     it 'raises a RuntimeError when the day is invalid' do
       %w(monday wednesday friday).each do |day|
-        expect { calendar.weekend_transition(day.to_sym) }.to raise_error(Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
+        expect { calendar.weekend_transition(day.to_sym) }.to raise_error(ICU::Calendar::RuntimeError, 'U_ILLEGAL_ARGUMENT_ERROR')
       end
     end
   end

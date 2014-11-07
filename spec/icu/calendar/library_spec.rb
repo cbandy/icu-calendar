@@ -1,20 +1,19 @@
 require 'icu/calendar'
 
 describe ICU::Calendar::Library do
-  Library = ICU::Calendar::Library
 
   shared_examples 'an enumeration' do |name, values|
-    subject(:enum) { Library.enum_type(name) }
+    subject(:enum) { ICU::Calendar::Library.enum_type(name) }
 
     it { should be_an FFI::Enum }
     specify { expect(enum.to_hash).to eq(values) }
-    specify { expect(Library.find_type(name)).to be }
+    specify { expect(ICU::Calendar::Library.find_type(name)).to be }
   end
 
   describe 'Loaded ICU version' do
-    subject(:version) { Library.version }
+    subject(:version) { ICU::Calendar::Library.version }
 
-    it { should be_a Library::VersionInfo }
+    it { should be_a ICU::Calendar::Library::VersionInfo }
     specify { expect(version.to_a).to be_all { |part| part.is_a? Integer } }
     specify { expect(version.to_s).to match /^[0-9.]+$/ }
   end
@@ -23,9 +22,9 @@ describe ICU::Calendar::Library do
     it 'yields an ErrorCode' do
       yielded = false
 
-      Library.assert_success do |status|
+      ICU::Calendar::Library.assert_success do |status|
         yielded = true
-        expect(status).to be_a Library::ErrorCode
+        expect(status).to be_a ICU::Calendar::Library::ErrorCode
         expect(status).to be_success
       end
 
@@ -35,13 +34,15 @@ describe ICU::Calendar::Library do
     context 'when the status contains success' do
       it 'returns the result of the passed block' do
         result = double
-        expect(Library.assert_success { result }).to be(result)
+        expect(ICU::Calendar::Library.assert_success { result }).to be(result)
       end
     end
 
     context 'when the status contains failure' do
       it 'raises a RuntimeError' do
-        expect { Library.assert_success { |status| status.write_int(5) } }.to raise_error(ICU::Calendar::RuntimeError)
+        expect {
+          ICU::Calendar::Library.assert_success { |status| status.write_int(5) }
+        }.to raise_error(ICU::Calendar::RuntimeError)
       end
     end
   end
@@ -52,11 +53,11 @@ describe ICU::Calendar::Library do
     it 'yields a buffer and an ErrorCode' do
       yielded = false
 
-      Library.read_into_wchar_buffer(length) do |buffer, status|
+      ICU::Calendar::Library.read_into_wchar_buffer(length) do |buffer, status|
         yielded = true
         expect(buffer).to be_an FFI::AbstractMemory
         expect(buffer.size).to be(buffer.type_size * length)
-        expect(status).to be_a Library::ErrorCode
+        expect(status).to be_a ICU::Calendar::Library::ErrorCode
         length
       end
 
@@ -65,7 +66,7 @@ describe ICU::Calendar::Library do
 
     context 'when the status contains success' do
       it 'reads from the buffer contents' do
-        result = Library.read_into_wchar_buffer(length) do |buffer, status|
+        result = ICU::Calendar::Library.read_into_wchar_buffer(length) do |buffer, status|
           buffer.write_uint16('A'.ord)
           length
         end
@@ -74,7 +75,7 @@ describe ICU::Calendar::Library do
       end
 
       it 'returns a UTF-8 String' do
-        result = Library.read_into_wchar_buffer(length) do |buffer, status|
+        result = ICU::Calendar::Library.read_into_wchar_buffer(length) do |buffer, status|
           buffer.write_uint16(376)
           length
         end
@@ -85,7 +86,7 @@ describe ICU::Calendar::Library do
     end
 
     context 'when the status contains overflow' do
-      let(:overflow_error) { Library::U_BUFFER_OVERFLOW_ERROR }
+      let(:overflow_error) { ICU::Calendar::Library::U_BUFFER_OVERFLOW_ERROR }
 
       it 'yields again with a new buffer and cleared status' do
         invocations = 0
@@ -93,7 +94,7 @@ describe ICU::Calendar::Library do
         original_length = 1
         yielded_length = 2
 
-        Library.read_into_wchar_buffer(original_length) do |buffer, status|
+        ICU::Calendar::Library.read_into_wchar_buffer(original_length) do |buffer, status|
           case invocations += 1
           when 1
             original_buffer = buffer
@@ -113,7 +114,7 @@ describe ICU::Calendar::Library do
         invocations = 0
 
         expect {
-          Library.read_into_wchar_buffer(length) do |_, status|
+          ICU::Calendar::Library.read_into_wchar_buffer(length) do |_, status|
             invocations += 1
             status.write_int(overflow_error)
             length
@@ -131,7 +132,7 @@ describe ICU::Calendar::Library do
         invocations = 0
 
         expect {
-          Library.read_into_wchar_buffer(length) do |_, status|
+          ICU::Calendar::Library.read_into_wchar_buffer(length) do |_, status|
             invocations += 1
             status.write_int(error)
           end
@@ -147,32 +148,32 @@ describe ICU::Calendar::Library do
     let(:windows1252) { "RUB\x9F".force_encoding('Windows-1252') }
 
     it 'yields a null-terminated buffer' do
-      Library.wchar_buffer_from_string('') do |buffer|
+      ICU::Calendar::Library.wchar_buffer_from_string('') do |buffer|
         expect(buffer).to be_an FFI::AbstractMemory
         expect(buffer.get_uint16(buffer.size - buffer.type_size)).to be(0)
       end
     end
 
     it 'converts a Ruby String to UChar' do
-      Library.wchar_buffer_from_string(utf8) do |buffer|
+      ICU::Calendar::Library.wchar_buffer_from_string(utf8) do |buffer|
         expect(buffer.read_array_of_uint16(buffer.size / buffer.type_size)).to eq([82, 85, 66, 376, 0])
       end
 
-      Library.wchar_buffer_from_string(windows1252) do |buffer|
+      ICU::Calendar::Library.wchar_buffer_from_string(windows1252) do |buffer|
         expect(buffer.read_array_of_uint16(buffer.size / buffer.type_size)).to eq([82, 85, 66, 376, 0])
       end
     end
 
     it 'returns the result of the passed block' do
       result = double
-      expect(Library.wchar_buffer_from_string('') { result }).to be(result)
+      expect(ICU::Calendar::Library.wchar_buffer_from_string('') { result }).to be(result)
     end
   end
 
   describe 'Reading a UEnumeration' do
     context 'without a block' do
       it 'returns an Enumerable' do
-        expect(Library.read_wchar_enumeration(double)).to be_an Enumerable
+        expect(ICU::Calendar::Library.read_wchar_enumeration(double)).to be_an Enumerable
       end
     end
 
@@ -180,24 +181,24 @@ describe ICU::Calendar::Library do
     let(:null)   { double(null?: true) }
 
     before do
-      allow(Library).to receive(:uenum_unext).and_return(null)
-      allow(Library).to receive(:uenum_close)
+      allow(ICU::Calendar::Library).to receive(:uenum_unext).and_return(null)
+      allow(ICU::Calendar::Library).to receive(:uenum_close)
     end
 
     it 'calls the Proc with an ErrorCode' do
       expect(opener).to receive(:call) do |status|
-        expect(status).to be_a Library::ErrorCode
+        expect(status).to be_a ICU::Calendar::Library::ErrorCode
         expect(status).to be_success
       end
 
-      Library.read_wchar_enumeration(opener) {}
+      ICU::Calendar::Library.read_wchar_enumeration(opener) {}
     end
 
     context 'when the Proc status is not success' do
       let(:opener) { lambda { |status| status.write_int(5) } }
 
       it 'raises a RuntimeError' do
-        expect { Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
+        expect { ICU::Calendar::Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
       end
     end
 
@@ -206,32 +207,32 @@ describe ICU::Calendar::Library do
       let(:opener) { double(call: enumeration) }
 
       it 'closes the enumeration' do
-        expect(Library).to receive(:uenum_close).with(enumeration)
-        Library.read_wchar_enumeration(opener) {}
+        expect(ICU::Calendar::Library).to receive(:uenum_close).with(enumeration)
+        ICU::Calendar::Library.read_wchar_enumeration(opener) {}
       end
 
       it 'calls uenum_unext' do
-        expect(Library).to receive(:uenum_unext) do |arg1, arg2, arg3|
+        expect(ICU::Calendar::Library).to receive(:uenum_unext) do |arg1, arg2, arg3|
           expect(arg1).to be(enumeration)
           expect(arg2).to be_an FFI::AbstractMemory
-          expect(arg3).to be_a Library::ErrorCode
+          expect(arg3).to be_a ICU::Calendar::Library::ErrorCode
           expect(arg3).to be_success
           null
         end
 
-        Library.read_wchar_enumeration(opener) {}
+        ICU::Calendar::Library.read_wchar_enumeration(opener) {}
       end
 
       context 'when uenum_unext fails' do
-        before { allow(Library).to receive(:uenum_unext) { |_, _, status| status.write_int(5) } }
+        before { allow(ICU::Calendar::Library).to receive(:uenum_unext) { |_, _, status| status.write_int(5) } }
 
         it 'raises a RuntimeError' do
-          expect { Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
+          expect { ICU::Calendar::Library.read_wchar_enumeration(opener) {} }.to raise_error ICU::Calendar::RuntimeError
         end
 
         it 'closes the enumeration' do
-          expect(Library).to receive(:uenum_close).with(enumeration)
-          Library.read_wchar_enumeration(opener) {} rescue nil
+          expect(ICU::Calendar::Library).to receive(:uenum_close).with(enumeration)
+          ICU::Calendar::Library.read_wchar_enumeration(opener) {} rescue nil
         end
       end
 
@@ -240,10 +241,10 @@ describe ICU::Calendar::Library do
         let(:pointer) { double(null?: false, read_array_of_uint16: [82, 85, 66, 376]) }
 
         it 'yields next UTF-8 string in the enumeration' do
-          expect(Library).to receive(:uenum_unext).ordered.and_return(pointer)
-          expect(Library).to receive(:uenum_unext).ordered.and_return(null)
+          expect(ICU::Calendar::Library).to receive(:uenum_unext).ordered.and_return(pointer)
+          expect(ICU::Calendar::Library).to receive(:uenum_unext).ordered.and_return(null)
 
-          Library.read_wchar_enumeration(opener) do |result|
+          ICU::Calendar::Library.read_wchar_enumeration(opener) do |result|
             expect(result).to eq("RUB\u0178")
             expect(result.encoding).to be(Encoding::UTF_8)
           end
@@ -253,7 +254,7 @@ describe ICU::Calendar::Library do
   end
 
   describe 'Default Locale' do
-    subject(:default) { Library.uloc_getDefault }
+    subject(:default) { ICU::Calendar::Library.uloc_getDefault }
 
     it { should be_a String }
   end
