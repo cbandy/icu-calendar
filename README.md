@@ -3,7 +3,7 @@ require 'icu/calendar'
 ```
 
 ```sh
-LD_LIBRARY_PATH="/path/to/icu/lib" rake -- --with-icu-dir=/path/to/icu
+ICU_DIR="/path/to/icu" LD_LIBRARY_PATH="/path/to/icu/lib" rake
 ```
 
 [![Build Status](https://secure.travis-ci.org/cbandy/icu-calendar.png?branch=master)](http://travis-ci.org/cbandy/icu-calendar)
