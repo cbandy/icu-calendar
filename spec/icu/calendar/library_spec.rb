@@ -15,7 +15,7 @@ describe ICU::Calendar::Library do
 
     it { should be_a ICU::Calendar::Library::VersionInfo }
     specify { expect(version.to_a).to be_all { |part| part.is_a? Integer } }
-    specify { expect(version.to_s).to match /^[0-9.]+$/ }
+    specify { expect(version.to_s).to match(/^[0-9.]+$/) }
   end
 
   describe 'Asserting a successful status' do

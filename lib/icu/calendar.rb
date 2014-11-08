@@ -13,10 +13,10 @@ module ICU
 
       def canonical_timezone_identifier(timezone)
         FFI::MemoryPointer.new(:bool) do |is_system_id|
-          return Library.wchar_buffer_from_string(timezone) do |timezone|
+          return Library.wchar_buffer_from_string(timezone) do |w_timezone|
             Library.read_into_wchar_buffer(32) do |buffer, status|
               Library.ucal_getCanonicalTimeZoneID(
-                timezone, -1,
+                w_timezone, -1,
                 buffer, buffer.size / buffer.type_size,
                 is_system_id, status
               )
@@ -38,17 +38,17 @@ module ICU
       end
 
       def default_timezone=(timezone)
-        Library.wchar_buffer_from_string(timezone) do |timezone|
+        Library.wchar_buffer_from_string(timezone) do |w_timezone|
           Library.assert_success do |status|
-            Library.ucal_setDefaultTimeZone(timezone, status)
+            Library.ucal_setDefaultTimeZone(w_timezone, status)
           end
         end
       end
 
       def dst_savings(timezone)
-        Library.wchar_buffer_from_string(timezone) do |timezone|
+        Library.wchar_buffer_from_string(timezone) do |w_timezone|
           Library.assert_success do |status|
-            Library.ucal_getDSTSavings(timezone, status)
+            Library.ucal_getDSTSavings(w_timezone, status)
           end
         end
       end
@@ -290,9 +290,9 @@ module ICU
     end
 
     def timezone=(timezone)
-      wchar_buffer_from_string_or_nil(timezone) do |timezone|
+      wchar_buffer_from_string_or_nil(timezone) do |w_timezone|
         Library.assert_success do |status|
-          Library.ucal_setTimeZone(@calendar, timezone, -1, status)
+          Library.ucal_setTimeZone(@calendar, w_timezone, -1, status)
         end
       end
     end

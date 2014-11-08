@@ -43,7 +43,7 @@ module ICU
 
         def read_into_wchar_buffer(length)
           ErrorCode.new do |status|
-            for attempts in 1..2
+            for _ in 1..2
               FFI::Buffer.new(:uint16, length, false) do |buffer|
                 length = yield buffer, status
                 return buffer.read_array_of_uint16(length).pack('U*') if status.success?
