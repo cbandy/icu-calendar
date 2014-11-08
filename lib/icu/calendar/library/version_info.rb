@@ -16,9 +16,10 @@ class ICU::Calendar
       end
 
       def to_s
-        buffer = FFI::MemoryPointer.new(:char, U_MAX_VERSION_STRING_LENGTH);
-        Library.u_versionToString(self, buffer)
-        buffer.read_string_to_null
+        FFI::MemoryPointer.new(:char, U_MAX_VERSION_STRING_LENGTH) do |buffer|
+          Library.u_versionToString(self, buffer)
+          return buffer.read_string_to_null
+        end
       end
     end
   end
