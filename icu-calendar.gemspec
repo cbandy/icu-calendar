@@ -5,7 +5,7 @@ require File.expand_path('../lib/icu/calendar/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.name = 'icu-calendar'
   gem.version = ICU::Calendar::VERSION
-  gem.summary = %q{FIXME}
+  gem.summary = %(Date arithmetic and calendar data from ICU)
 
   gem.author = 'Chris Bandy'
   gem.email = 'bandy.chris@gmail.com'
