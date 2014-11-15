@@ -12,8 +12,7 @@ Gem::Specification.new do |gem|
   gem.homepage = 'https://github.com/cbandy/icu-calendar'
   gem.license = 'Apache License Version 2.0'
 
-  gem.files = Dir.glob('lib/**/*.rb')
-  gem.test_files = Dir.glob('spec/**/*_spec.rb')
+  gem.files = %w( LICENSE README.md ) + Dir.glob('lib/**/*.rb')
 
   gem.add_development_dependency 'rspec', '>= 3.0'
   gem.add_runtime_dependency 'ffi'
